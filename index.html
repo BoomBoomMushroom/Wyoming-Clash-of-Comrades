@@ -336,19 +336,19 @@ class Fighter extends Sprite {
       }
       if(keys[keybinds.B_Attack]){
         if(keys[keybinds.Right]){
-          this.attackBSide("Right")
+          this.attacks["Side_B"]("Right")
         }
         else if(keys[keybinds.Left]){
-          this.attackBSide("Left")
+          this.attacks["Side_B"]("Left")
         }
         else if(keys[keybinds.Up]){
-          this.attackBUp()
+          this.attacks["Up_B"]()
         }
         else if(keys[keybinds.Down]){
-          this.attackBDown()
+          this.attacks["Down_B"]()
         }
         else {
-          this.attackBNuetral
+          this.attacks["Neutral_B"]()
         }
         this.attack()
       }
