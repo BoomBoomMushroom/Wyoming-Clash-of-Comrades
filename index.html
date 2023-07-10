@@ -1,18 +1,474 @@
-<canvas id="canvas" height="300" width="500" style="border: solid 1px black;"></canvas>
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Press Start 2P', cursive;
+    }
+  </style>
+</head>
+<body>
+  <!-- red container div -->
+  <div style="position: relative; display: inline-block">
+    <!-- smaller red container div -->
+    <div
+      style="
+        position: absolute;
+        display: flex;
+        width: 100%;
+        align-items: center;
+        padding: 20px;
+      "
+    >
+    
+      <div></div>
+    </div>
+    <div
+      id="displayText"
+      style="
+        position: absolute;
+        color: white;
+        align-items: center;
+        justify-content: center;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: none;
+      "
+    >
+      Tie
+    </div>
+    <canvas style="border: 1px solid black"></canvas>
+  </div>
+</body>
 
 
+<script src="https://unpkg.com/howler@2.2.3/dist/howler.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/BoomBoomMushroom/GameHub/js_modules/gameController.js"></script>
 
 <script>
-    window.gamepadsModule.debug = true
-	
-    const canvas = document.getElementById("canvas")
-    const ctx = canvas.getContext("2d")
+function playSound(src){
+	var sound = new Howl({
+    src: [src],
+  	html5: true,
+  });
+	sound.play()
+}
+</script>
 
-		class Sprite {
-    	constructor({
-      	position,
-        sprite
-      })
+<!--
+https://fontesk.com/pixelify-sans-typeface/
+-->
+<style>
+@font-face {
+    font-family: 'PixelifySans';
+    src: url('https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/raw/main/Fonts/Pixelify_Sans/otf/PixelifySans-Bold.otf');
+}
+</style>
+
+<script>
+class Sprite {
+  constructor({
+    position,
+    imageSrc,
+    scale = 1,
+    framesMax = 1,
+    offset = { x: 0, y: 0 },
+    size = {}
+  }) {
+    this.position = position
+    this.image = new Image()
+    this.image.src = imageSrc
+    this.width = 50
+    this.height = 150
+    this.scale = scale
+    this.framesMax = framesMax
+    this.framesCurrent = 0
+    this.framesElapsed = 0
+    this.framesHold = 5
+    this.offset = offset
+  }
+
+  draw() {
+    c.drawImage(
+      this.image,
+      this.framesCurrent * (this.image.width / this.framesMax),
+      0,
+      this.image.width / this.framesMax,
+      this.image.height,
+      this.position.x - this.offset.x,
+      this.position.y - this.offset.y,
+      (this.image.width / this.framesMax) * this.scale,
+      this.image.height * this.scale
+    )
+  }
+
+  animateFrames() {
+    this.framesElapsed++
+
+    if (this.framesElapsed % this.framesHold === 0) {
+      if (this.framesCurrent < this.framesMax - 1) {
+        this.framesCurrent++
+      } else {
+        this.framesCurrent = 0
+      }
     }
+  }
+
+  update() {
+    this.draw()
+    this.animateFrames()
+  }
+}
+
+class Item extends Sprite {
+  constructor({
+    position,
+    imageSrc,
+    scale = 1,
+    framesMax = 1,
+    offset = { x: 0, y: 0 },
+    name,
+  }) {
+    super({
+      position,
+      imageSrc,
+      scale,
+      framesMax,
+      offset,
+    })
+    
+    this.width = 50
+    this.height = 150
+    this.lastKey
+    this.framesCurrent = 0
+    this.framesElapsed = 0
+    this.framesHold = 5
+    
+    this.pickedUp = false
+		this.name = name || "Coin"
+
+    for (const sprite in this.sprites) {
+      sprites[sprite].image = new Image()
+      sprites[sprite].image.src = sprites[sprite].imageSrc
+    }
+  }
+
+  update() {
+    this.draw()
+
+		if(debug){
+      for(var i=0;i<entities.length;i++){
+        var entity = entities[i]
+        //if(rectangularCollision({rectangle1: this,rectangle2: entity}) && entity.isPlayer){
+      		// idk destroy
+      	//}
+      }
+      
+      // draw hitbox
+      c.fillStyle = 'rgba(0, 255, 0, 0.15)'
+      
+      c.beginPath();
+      c.moveTo(this.position.x, this.position.y);
+      c.lineTo(this.position.x + this.width, this.position.y);
+      c.lineTo(this.position.x + this.width, this.position.y+this.height);
+      c.lineTo(this.position.x, this.position.y+this.height);
+      c.lineTo(this.position.x, this.position.y);
+      c.stroke();
+    }
+    
+    // gravity function
+    if (this.position.y + (this.height * canvasScale) + gravity >= floor) {
+      this.position.y = floor - (this.height * canvasScale)
+      this.onGround = true
+    } else{
+    	this.position.y += gravity
+      this.onGround = false
+    }
+  }
+}
+
+class Fighter extends Sprite {
+  constructor({
+  	playerIndex = 0,
+    position,
+    velocity,
+    color = 'red',
+    imageSrc,
+    scale = 1,
+    framesMax = 1,
+    offset = { x: 0, y: 0 },
+    sprites,
+    attackBox = { offset: {}, width: undefined, height: undefined },
+    
+    attacks = {
+    	"Neutral_B": null,
+      "Side_B": null,
+      "Up_B": null,
+      "Down_B": null,
+
+      "Neutral_A": null,
+      "Side_A": null,
+      "LeftSide_A_air": null,
+      "RightSide_A_air": null,
+      "Down_A": null,
+      "Up_A": null,
+    }
+  }) {
+    super({
+      position,
+      imageSrc,
+      scale,
+      framesMax,
+      offset
+    })
+
+		this.playerIndex = playerIndex
+    
+    this.velocity = velocity
+    this.width = 50
+    this.height = 90
+    this.attackBox = {
+      position: {
+        x: this.position.x,
+        y: this.position.y
+      },
+      offset: attackBox.offset,
+      width: attackBox.width,
+      height: attackBox.height
+    }
+    this.color = color
+    this.isAttacking = false
+    this.framesCurrent = 0
+    this.framesElapsed = 0
+    this.framesHold = 5
+    this.sprites = sprites
+    this.dead = false
+    this.onGround = false
+    
+    this.damage = 0
+    this.immunityFrames = 0
+		
+
+    for (const sprite in this.sprites) {
+      sprites[sprite].image = new Image()
+      sprites[sprite].image.src = sprites[sprite].imageSrc
+    }
+  }
+
+  update() {
+    this.draw()
+    if (!this.dead){
+    	this.animateFrames()
+      this.immunityFrames -= 1
+    }
+
+    // attack boxes
+    this.attackBox.position.x = this.position.x + this.attackBox.offset.x
+    this.attackBox.position.y = this.position.y + this.attackBox.offset.y
+
+		if(debug){
+    	// draw the attack box
+      c.fillStyle = 'rgba(255, 255, 255, 0.15)'
+      if(rectangularCollision({rectangle1: player,rectangle2: enemy})){
+      	c.fillStyle = 'rgba(255, 0, 0, 0.15)'
+      }
+     	c.fillRect(
+      	this.attackBox.position.x,
+       	this.attackBox.position.y,
+       	this.attackBox.width,
+   			this.attackBox.height
+    	)
+      
+      // draw player's hitbox
+      c.fillStyle = 'rgba(0, 255, 0, 0.15)'
+      
+      c.beginPath();
+      c.moveTo(this.position.x, this.position.y);
+      c.lineTo(this.position.x + this.width, this.position.y);
+      c.lineTo(this.position.x + this.width, this.position.y+this.height);
+      c.lineTo(this.position.x, this.position.y+this.height);
+      c.lineTo(this.position.x, this.position.y);
+      c.stroke();
+    }
+
+    this.position.x += this.velocity.x
+    this.position.y += this.velocity.y
+    
+    // gravity function
+    if (this.position.y + (this.height) + this.velocity.y >= floor) {
+      this.velocity.y = 0
+      this.position.y = floor - (this.height)
+      this.onGround = true
+    } else{
+    	this.velocity.y += gravity
+      this.onGround = false
+    }
+  }
+
+	gameLoopUpdates(){
+  	let keybinds = userKeys[this.playerIndex]
+    this.velocity.x /= 1.25
+    
+    if(this.dead==false){
+      // Keys
+      let hasMoved = false
+      if (keys[keybinds.Left]) {
+        this.velocity.x = -5 * canvasScale
+        hasMoved = true
+      }
+      if (keys[keybinds.Right]) {
+        this.velocity.x = 5 * canvasScale
+        hasMoved = true
+      }
+      if(hasMoved){ this.switchSprite('run') }
+      else{ this.switchSprite('idle') }
+
+      if(keys[keybinds.Jump]){
+        this.jump()
+      }
+      if(keys[keybinds.B_Attack]){
+        this.attack()
+      }
+    }
+    
+    for(var i=0;i<entities.length;i++){
+    	let enemy = entities[i]
+      if(enemy.color == this.color){continue}
+      
+      let atk = this.isAttacking && this.framesCurrent === 2
+      if (rectangularCollision({rectangle1: this, rectangle2: enemy}) && atk) {
+        enemy.takeHit(3, this.position)
+        this.isAttacking = false
+      }
+    }
+    
+  	if (this.velocity.y < 0) {
+      this.switchSprite('jump')
+    } else if (this.velocity.y > 0) {
+      this.switchSprite('fall')
+    }
+    
+    if (this.isAttacking && this.framesCurrent === 2) {
+      this.isAttacking = false
+    }
+    
+  }
+
+  attack() {
+  	if(this.isAttacking){return}
+    
+    this.switchSprite('attack1')
+    this.isAttacking = true
+  }
+  
+  jump(){
+  	if(this.onGround){
+    	this.velocity.y = -20 * canvasScale
+    }
+  }
+
+  takeHit(dmg, src) {
+  	if(this.immunityFrames > 0){return}
+    this.damage += dmg
+    this.immunityFrames = 5
+    
+    if(this.position.x > src.x){
+    	this.velocity.x += this.damage
+      this.velocity.y -= 3
+    }
+    else{
+    	this.velocity.x -= this.damage
+      this.velocity.y -= 3
+    }
+
+    if (this.damage >= Infinity) {
+      this.switchSprite('death')
+    } else this.switchSprite('takeHit')
+  }
+
+  switchSprite(sprite) {
+    if (this.image === this.sprites.death.image) {
+      if (this.framesCurrent === this.sprites.death.framesMax - 1)
+        this.dead = true
+      return
+    }
+
+    // overriding all other animations with the attack animation
+    if (
+      this.image === this.sprites.attack1.image &&
+      this.framesCurrent < this.sprites.attack1.framesMax - 1
+    )
+      return
+
+    // override when fighter gets hit
+    if (
+      this.image === this.sprites.takeHit.image &&
+      this.framesCurrent < this.sprites.takeHit.framesMax - 1
+    )
+      return
+
+    switch (sprite) {
+      case 'idle':
+        if (this.image !== this.sprites.idle.image) {
+          this.image = this.sprites.idle.image
+          this.framesMax = this.sprites.idle.framesMax
+          this.framesCurrent = 0
+        }
+        break
+      case 'run':
+        if (this.image !== this.sprites.run.image) {
+          this.image = this.sprites.run.image
+          this.framesMax = this.sprites.run.framesMax
+          this.framesCurrent = 0
+        }
+        break
+      case 'jump':
+        if (this.image !== this.sprites.jump.image) {
+          this.image = this.sprites.jump.image
+          this.framesMax = this.sprites.jump.framesMax
+          this.framesCurrent = 0
+        }
+        break
+
+      case 'fall':
+        if (this.image !== this.sprites.fall.image) {
+          this.image = this.sprites.fall.image
+          this.framesMax = this.sprites.fall.framesMax
+          this.framesCurrent = 0
+        }
+        break
+
+      case 'attack1':
+        if (this.image !== this.sprites.attack1.image) {
+          this.image = this.sprites.attack1.image
+          this.framesMax = this.sprites.attack1.framesMax
+          this.framesCurrent = 0
+        }
+        break
+
+      case 'takeHit':
+        if (this.image !== this.sprites.takeHit.image) {
+          this.image = this.sprites.takeHit.image
+          this.framesMax = this.sprites.takeHit.framesMax
+          this.framesCurrent = 0
+        }
+        break
+
+      case 'death':
+        if (this.image !== this.sprites.death.image) {
+          this.image = this.sprites.death.image
+          this.framesMax = this.sprites.death.framesMax
+          this.framesCurrent = 0
+        }
+        break
+    }
+  }
+}
 </script>
