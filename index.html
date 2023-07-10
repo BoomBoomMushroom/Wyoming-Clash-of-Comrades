@@ -335,11 +335,17 @@ class Fighter extends Sprite {
         this.jump()
       }
       if(keys[keybinds.A_Attack]){
-        if(keys[keybinds.Right]){
+        if(keys[keybinds.Right] && this.onGround==true){
           this.attacks["Side_A"]("Right")
         }
-        else if(keys[keybinds.Left]){
+        else if(keys[keybinds.Left && this.onGround==true]){
           this.attacks["Side_A"]("Left")
+        }
+        if(keys[keybinds.Right] && this.onGround==false){
+          this.attacks["RightSide_A_air"]()
+        }
+        else if(keys[keybinds.Left && this.onGround==false]){
+          this.attacks["LeftSide_A_air"]()
         }
         else if(keys[keybinds.Up]){
           this.attacks["Up_A"]()
