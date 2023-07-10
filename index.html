@@ -208,6 +208,8 @@ class Fighter extends Sprite {
     sprites,
     attackBox = { offset: {}, width: undefined, height: undefined },
     
+    facingRight = true,
+    characterName = "Player",
     attacks = {
     	"Neutral_B": null,
       "Side_B": null,
@@ -252,9 +254,11 @@ class Fighter extends Sprite {
     this.sprites = sprites
     this.dead = false
     this.onGround = false
+    this.facingRight = facingRight
     
     this.damage = 0
     this.immunityFrames = 0
+    this.character = characterName
 		
 
     for (const sprite in this.sprites) {
@@ -265,6 +269,7 @@ class Fighter extends Sprite {
 
   update() {
     this.draw()
+    this.drawPercent()
     if (!this.dead){
     	this.animateFrames()
       this.immunityFrames -= 1
@@ -347,10 +352,10 @@ class Fighter extends Sprite {
         else if(keys[keybinds.Left && this.onGround==false]){
           this.attacks["LeftSide_A_air"]()
         }
-        else if(keys[keybinds.Up]){
+        else if(keys[keybinds.Jump]){
           this.attacks["Up_A"]()
         }
-        else if(keys[keybinds.Down]){
+        else if(keys[keybinds.Shield]){
           this.attacks["Down_A"]()
         }
         else {
@@ -365,10 +370,10 @@ class Fighter extends Sprite {
         else if(keys[keybinds.Left]){
           this.attacks["Side_B"]("Left")
         }
-        else if(keys[keybinds.Up]){
+        else if(keys[keybinds.Jump]){
           this.attacks["Up_B"]()
         }
-        else if(keys[keybinds.Down]){
+        else if(keys[keybinds.Shield]){
           this.attacks["Down_B"]()
         }
         else {
@@ -399,6 +404,38 @@ class Fighter extends Sprite {
       this.isAttacking = false
     }
     
+  }
+
+	drawPercent(){
+  	let emblem = [
+    	"black", "black", 	 "black", 		"black", 		"black",		 "black",    "black",
+      "black", this.color, this.color,  this.color, this.color,  this.color, "black",
+      "white", "black",    this.color,  this.color, this.color,  "black",		 "white",
+      "white", "black",    this.color,  this.color, this.color,  "black",		 "white",
+      "white", "white",    "black",     this.color, "black",     "white",		 "white",
+			"white", "white",    "white",     "black",    "white",     "white",		 "white",
+    ]
+  	
+    let x1 = this.position.x+(this.width/4)
+    let y1 = this.position.y-10
+    let pSize = 2.5
+    for(let i=1;i<emblem.length+1;i++){
+    	if(emblem[i-1]=="white"){emblem[i-1]="rgba(0,0,0,0)"}
+    	c.fillStyle = emblem[i-1]
+      c.fillRect(x1,y1, pSize,pSize)
+      x1 += pSize
+      if(i % 7 == 0){
+      	y1 += pSize
+        x1 -= (pSize*7)
+      }
+    }
+    
+  	c.fillStyle = this.color;
+  	c.font = "16px serif";
+    
+    let percent = this.damage/300
+    let move = percent * 7
+  	c.fillText(this.damage+"%", this.position.x+(this.width/4)-move, this.position.y-15);
   }
 
   attack() {

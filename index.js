@@ -59,6 +59,23 @@ sprites.push(background)
 
 const player = new Fighter({
 	playerIndex: 0,
+  characterName: "Colin",
+  color: 'red',
+  facingRight: true,
+  attacks: {
+    "Neutral_B": null,
+    "Side_B": null,
+    "Up_B": null,
+    "Down_B": null,
+
+    "Neutral_A": null,
+    "Side_A": null,
+    "LeftSide_A_air": null,
+    "RightSide_A_air": null,
+    "Down_A": null,
+    "Up_A": null,
+  },
+  
   position: {
     x: 0 * canvasScale,
     y: 0 * canvasScale
@@ -117,6 +134,23 @@ entities.push(player)
 
 const enemy = new Fighter({
 	playerIndex: 1,
+  characterName: "Colin",
+  color: 'blue',
+  facingRight: true,
+  attacks: {
+    "Neutral_B": null,
+    "Side_B": null,
+    "Up_B": null,
+    "Down_B": null,
+
+    "Neutral_A": null,
+    "Side_A": null,
+    "LeftSide_A_air": null,
+    "RightSide_A_air": null,
+    "Down_A": null,
+    "Up_A": null,
+  },
+  
   position: {
     x: 400 * canvasScale,
     y: 100 * canvasScale
@@ -125,7 +159,6 @@ const enemy = new Fighter({
     x: 0,
     y: 0
   },
-  color: 'blue',
   offset: {
     x: -50 * canvasScale,
     y: 0 * canvasScale
