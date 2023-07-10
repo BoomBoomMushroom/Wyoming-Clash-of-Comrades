@@ -2,7 +2,7 @@
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 
-const canvasScale = .6
+const canvasScale = 0.6
 canvas.width = 1024 * canvasScale
 canvas.height = 576 * canvasScale
 var floor = canvas.height - (96 * canvasScale)
@@ -122,8 +122,12 @@ const player = new Fighter({
     }
   },
   attackBox: {
-    offset: {
+    offsetRight: {
       x: 100 * canvasScale,
+      y: 50 * canvasScale
+    },
+    offsetLeft: {
+      x: -170 * canvasScale,
       y: 50 * canvasScale
     },
     width: 160 * canvasScale,
@@ -201,11 +205,15 @@ const enemy = new Fighter({
     }
   },
   attackBox: {
-    offset: {
+    offsetRight: {
+      x: 100 * canvasScale,
+      y: 50 * canvasScale
+    },
+    offsetLeft: {
       x: -170 * canvasScale,
       y: 50 * canvasScale
     },
-    width: 170 * canvasScale,
+    width: 160 * canvasScale,
     height: 50 * canvasScale
   }
 })

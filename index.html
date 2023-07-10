@@ -254,7 +254,18 @@ class Fighter extends Sprite {
     framesMax = 1,
     offset = { x: 0, y: 0 },
     sprites,
-    attackBox = { offset: {}, width: undefined, height: undefined },
+    attackBox = {
+    	offsetRight: {
+        x: 100 * canvasScale,
+        y: 50 * canvasScale
+      },
+      offsetLeft: {
+        x: -170 * canvasScale,
+        y: 50 * canvasScale
+      },
+      width: undefined,
+      height: undefined
+    },
     
     facingRight = true,
     characterName = "Player",
@@ -290,7 +301,8 @@ class Fighter extends Sprite {
         x: this.position.x,
         y: this.position.y
       },
-      offset: attackBox.offset,
+      offsetRight: attackBox.offsetRight,
+      offsetLeft: attackBox.offsetLeft,
       width: attackBox.width,
       height: attackBox.height
     }
@@ -302,8 +314,9 @@ class Fighter extends Sprite {
     this.sprites = sprites
     this.dead = false
     this.onGround = false
-    this.facingRight = facingRight
+    this.stunFrames = 0
     
+    this.facingRight = facingRight
     this.damage = 0
     this.immunityFrames = 0
     this.character = characterName
@@ -321,11 +334,18 @@ class Fighter extends Sprite {
     if (!this.dead){
     	this.animateFrames()
       this.immunityFrames -= 1
+      this.stunFrames -= 1
     }
 
     // attack boxes
-    this.attackBox.position.x = this.position.x + this.attackBox.offset.x
-    this.attackBox.position.y = this.position.y + this.attackBox.offset.y
+    if(this.facingRight){
+      this.attackBox.position.x = this.position.x + this.attackBox.offsetRight.x
+      this.attackBox.position.y = this.position.y + this.attackBox.offsetRight.y
+    }
+    else{
+    	this.attackBox.position.x = this.position.x + this.attackBox.offsetLeft.x
+      this.attackBox.position.y = this.position.y + this.attackBox.offsetLeft.y
+    }
 
 		if(debug){
     	// draw the attack box
@@ -368,20 +388,28 @@ class Fighter extends Sprite {
 
 	gameLoopUpdates(){
   	let keybinds = userKeys[this.playerIndex]
-    this.velocity.x /= 1.25
+    let drag = .5
+    let velX = this.velocity.x
+    if(velX != 0){
+    	this.velocity.x += velX > 0 ? -drag : drag
+    }
     
-    if(this.dead==false){
+    if(this.dead==false && this.stunFrames <= 0){
       // Keys
       let hasMoved = false
-      if (keys[keybinds.Left]) {
-        this.velocity.x = -5 * canvasScale
+      let speed = 5 * canvasScale
+      
+      if (keys[keybinds.Left] && this.velocity.x > -speed) {
+        this.velocity.x += -speed
         hasMoved = true
+        this.facingRight = false
       }
-      if (keys[keybinds.Right]) {
-        this.velocity.x = 5 * canvasScale
+      if (keys[keybinds.Right] && this.velocity.x < speed ) {
+        this.velocity.x += speed
         hasMoved = true
+        this.facingRight = true
       }
-      if(hasMoved){ this.switchSprite('run') }
+      if(this.velocity.x != 0){ this.switchSprite('run') }
       else{ this.switchSprite('idle') }
 
       if(keys[keybinds.Jump]){
@@ -394,7 +422,7 @@ class Fighter extends Sprite {
         else if(keys[keybinds.Left && this.onGround==true]){
           this.attacks["Side_A"]("Left")
         }
-        if(keys[keybinds.Right] && this.onGround==false){
+        else if(keys[keybinds.Right] && this.onGround==false){
           this.attacks["RightSide_A_air"]()
         }
         else if(keys[keybinds.Left && this.onGround==false]){
@@ -409,7 +437,6 @@ class Fighter extends Sprite {
         else {
           this.attacks["Neutral_A"]()
         }
-        this.attack()
       }
       if(keys[keybinds.B_Attack]){
         if(keys[keybinds.Right]){
@@ -427,7 +454,6 @@ class Fighter extends Sprite {
         else {
           this.attacks["Neutral_B"]()
         }
-        this.attack()
       }
     }
     
