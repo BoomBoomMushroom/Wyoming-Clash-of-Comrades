@@ -332,6 +332,21 @@ class Fighter extends Sprite {
     this.immunityFrames = 0
     this.character = characterName
 		this.attacks = attacks
+    this.cooldowns = {
+      "Neutral_B": 0,
+      "Side_B": 0,
+      "Up_B": 0,
+      "Down_B": 0,
+
+      "Neutral_A": 0,
+      "Side_A": 0,
+      "LeftSide_A_air": 0,
+      "RightSide_A_air": 0,
+      "Down_A": 0,
+      "Up_A": 0,
+      
+      "Ultimate": 0,
+    }
     
     this.hasUltimate = false
 
@@ -348,6 +363,18 @@ class Fighter extends Sprite {
     	this.animateFrames()
       this.immunityFrames -= 1
       this.stunFrames -= 1
+      
+
+      this.cooldowns.Neutral_B -= 1
+      this.cooldowns.Side_B -= 1
+      this.cooldowns.Up_B -= 1
+      this.cooldowns.Down_B -= 1
+      this.cooldowns.Neutral_A -= 1
+      this.cooldowns.Side_A -= 1
+      this.cooldowns.LeftSide_A_air -= 1
+      this.cooldowns.RightSide_A_air -= 1
+      this.cooldowns.Down_A -= 1
+      this.cooldowns.Up_A -= 1
     }
 
     // attack boxes
@@ -551,11 +578,11 @@ class Fighter extends Sprite {
     this.immunityFrames = 5
     
     if(this.position.x > src.x){
-    	this.velocity.x += this.damage
+    	this.velocity.x += (this.damage/3)
       this.velocity.y -= 3
     }
     else{
-    	this.velocity.x -= this.damage
+    	this.velocity.x -= (this.damage/3)
       this.velocity.y -= 3
     }
 
@@ -695,5 +722,32 @@ function spawnBlackhole(summonerColor, user){
     life: 100,
     uses: Infinity,
   })
+}
+function spawnTurret(summonerColor, user){
+	let e = new Sprite({
+    position: {
+    	x: user.position.x,
+      y: user.position.y,
+    },
+    imageSrc: 'https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/dillion_turrets/turret_right.png?raw=true',
+    scale: canvasScale * 3,
+    framesMax: 1,
+  })
+  turrets.push({
+  	entity: e,
+    color: summonerColor,
+    sprites: [
+    	"https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/dillion_turrets/turret_right_-45.png?raw=true",
+    	"https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/dillion_turrets/turret_right.png?raw=true",
+      "https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/dillion_turrets/turret_right_45.png?raw=true",
+      
+      "https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/dillion_turrets/turret_left_-45.png?raw=true",
+    	"https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/dillion_turrets/turret_left.png?raw=true",
+      "https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/dillion_turrets/turret_left_45.png?raw=true",
+    ],
+    summoner: user,
+    bullet: "https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/bullet.png?raw=true"
+  })
+  return 30
 }
 </script>

@@ -50,8 +50,19 @@ function randomInt(min,max){
 function distance(p1, p2){
 	return Math.sqrt( Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2) )
 }
-function calculateGravity(toPoint, fromPoint, gravity){
-	
+function closestEntity(point, colorExclude){
+	let cIndex = -1;
+	let dist = Infinity
+
+	for(var i=0;i<entities.length;i++){
+  	let entity = entities[i]
+    if(colorExclude){
+    	if(entity.color == colorExclude){continue}
+    }
+    let d = distance(point, entity.position)
+    if(d < dist){ cIndex = i; dist = d }
+  }
+  return cIndex
 }
 
 c.fillRect(0, 0, canvas.width, canvas.height)
@@ -62,6 +73,7 @@ var sprites = []
 var entities = []
 var items = []
 var damageSprites = []
+var turrets = []
 
 let characterBuilds = {
 	"Colin": {
@@ -254,6 +266,75 @@ function animate() {
     sprite.update()
   }
   
+  for(var i=0;i<turrets.length;i++){
+  	let turret = turrets[i]
+    if(turret.cooldown == null){ turret.cooldown = 0 }
+    else{ turret.cooldown -= 1 }
+    
+    let closestIndex = closestEntity(turret.entity.position, turret.color)
+    if(closestIndex == -1){ continue }
+    
+    let closest = entities[closestIndex]
+    
+    if(turret.entity.position.y+(turret.entity.height/3)+7 < floor){
+    	turret.entity.position.y += gravity
+    }
+    
+    let tEntity = turret.entity
+    let tCenter = {
+    	x: tEntity.position.x + tEntity.width,
+      y: tEntity.position.y + tEntity.height,
+    }
+    
+    let speedX = 5
+    let speedY = 2
+    let velMap = [
+    	{x: speedX, y: speedY},
+      {x: speedX, y: 0},
+      {x: speedX, y: -speedY},
+      
+      {x: -speedX, y: speedY},
+      {x: -speedX, y: 0},
+      {x: -speedX, y: -speedY},
+    ]
+    
+    let kIndex = 1
+    if(closest.position.y > tEntity.position.y + (tEntity.height/2)){
+    	kIndex = 0
+    }
+    if(closest.position.y < tEntity.position.y){
+    	kIndex = 2
+    }
+    if(closest.position.y > tEntity.position.y-(tEntity.height/4) && closest.position.y < tEntity.position.y){
+    	kIndex = 1
+    }
+    
+    if(tCenter.x > closest.position.x){ kIndex += 3; }
+    tEntity.image.src = turret.sprites[kIndex]    
+    tEntity.draw()
+    
+    if(turret.cooldown == 0){
+      let newProj = new Sprite({
+        position: {
+          x: tEntity.position.x + tEntity.width/4,
+          y: tEntity.position.y + (tEntity.height/4)-7,
+        },
+        imageSrc: turret.bullet,
+        scale: canvasScale * 10,
+        framesMax: 1,
+      })
+      damageSprites.push({
+        entity: newProj,
+        color: turret.color,
+        vel: velMap[kIndex],
+        dmg: 3,
+        uses: -1,
+      })
+      
+      turret.cooldown = 100
+    }
+  }
+  
   for(var i=0;i<damageSprites.length;i++){
   	var entity = damageSprites[i]
     if(entity.scaleTo != null && entity.scaleFrom != null){
@@ -304,8 +385,8 @@ function animate() {
   c.fillStyle = 'rgba(255, 255, 255, 0.15)'
   c.fillRect(0, 0, canvas.width, canvas.height)
   
-  for(var i=0;i<entities.length;i++){
-  	var entity = entities[i]
+	for(var i=0;i<entities.length;i++){
+  	let entity = entities[i]
     entity.update()
     entity.gameLoopUpdates()
     
