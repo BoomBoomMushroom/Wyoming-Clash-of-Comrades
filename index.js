@@ -15,7 +15,10 @@ const userKeys = [
     "Jump": "w",
     "Shield": "s",
     "B_Attack": "q",
-    "A_Attack": "e"
+    "A_Attack": "e",
+    "Up": "w",
+    "Pause": ' ',
+    "Ultimate": 'z'
   },
   { // Player 2 (UHJK)
   	"Right": "k",
@@ -23,7 +26,10 @@ const userKeys = [
     "Jump": "u",
     "Shield": "j",
     "B_Attack": "y",
-    "A_Attack": "i"
+    "A_Attack": "i",
+    "Up": "u",
+    "Pause": ' ',
+    "Ultimate": 'b'
   },
 ]
 
@@ -38,6 +44,9 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
     rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height
   )
 }
+function randomInt(min,max){
+	return Math.floor(Math.random() * (max-min+1))+min
+}
 
 c.fillRect(0, 0, canvas.width, canvas.height)
 
@@ -46,6 +55,40 @@ const gravity = 0.7 * canvasScale
 var sprites = []
 var entities = []
 var items = []
+var damageSprites = []
+
+let emptyAttacks = {
+  "Neutral_B": ()=>{},
+  "Side_B": ()=>{},
+  "Up_B": ()=>{},
+  "Down_B": ()=>{},
+
+  "Neutral_A": ()=>{},
+  "Side_A": ()=>{},
+  "LeftSide_A_air": ()=>{},
+  "RightSide_A_air": ()=>{},
+  "Down_A": ()=>{},
+  "Up_A": ()=>{},
+  
+  "Ultimate": ()=>{},
+}
+let characterBuilds = {
+	"Colin": {
+    "Neutral_B": ()=>{},
+    "Side_B": ()=>{},
+    "Up_B": ()=>{},
+    "Down_B": ()=>{},
+
+    "Neutral_A": ()=>{},
+    "Side_A": ()=>{},
+    "LeftSide_A_air": ()=>{},
+    "RightSide_A_air": ()=>{},
+    "Down_A": ()=>{},
+    "Up_A": ()=>{},
+
+    "Ultimate": (color)=>{binaryRain(10, 3, color)},
+  }
+}
 
 const background = new Sprite({
   position: {
@@ -62,19 +105,7 @@ const player = new Fighter({
   characterName: "Colin",
   color: 'red',
   facingRight: true,
-  attacks: {
-    "Neutral_B": null,
-    "Side_B": null,
-    "Up_B": null,
-    "Down_B": null,
-
-    "Neutral_A": null,
-    "Side_A": null,
-    "LeftSide_A_air": null,
-    "RightSide_A_air": null,
-    "Down_A": null,
-    "Up_A": null,
-  },
+  attacks: characterBuilds["Colin"],
   
   position: {
     x: 0 * canvasScale,
@@ -140,20 +171,8 @@ const enemy = new Fighter({
 	playerIndex: 1,
   characterName: "Colin",
   color: 'blue',
-  facingRight: true,
-  attacks: {
-    "Neutral_B": null,
-    "Side_B": null,
-    "Up_B": null,
-    "Down_B": null,
-
-    "Neutral_A": null,
-    "Side_A": null,
-    "LeftSide_A_air": null,
-    "RightSide_A_air": null,
-    "Down_A": null,
-    "Up_A": null,
-  },
+  facingRight: false,
+  attacks: emptyAttacks,
   
   position: {
     x: 400 * canvasScale,
@@ -229,6 +248,19 @@ function animate() {
     sprite.update()
   }
   
+  for(var i=0;i<damageSprites.length;i++){
+  	var entity = damageSprites[i]
+    entity.entity.update()
+    entity.entity.position.y += gravity * 10
+    
+    let e = entity.entity
+    //e.delUnder.y = canvas.height
+    
+    if(e.position.y > e.delUnder.y && e.delUnder.do){
+    	damageSprites.splice(i, 1)
+    }
+	}
+  
   c.fillStyle = 'rgba(255, 255, 255, 0.15)'
   c.fillRect(0, 0, canvas.width, canvas.height)
   
@@ -261,27 +293,44 @@ function updateKeys(){
   	let data = padsData[i]
     if(data == null){continue}
     
-    if(data.buttons.A){ player.attack() }
-    if(data.buttons.X){ player.jump() }
-    if(data.buttons.Left){
-    	keys.a = true
-      player.lastKey = 'a'
-    }else{ keys.a = false }
+    let index = i
+		let keybinds = userKeys[index]
     
-    if(data.buttons.Right){
-    	keys.d = true
-      player.lastKey = 'd'
-    }
-    else{keys.d = false}
+    if(data.buttons.A){ keys[keybinds.A_Attack] = true }
+    else{ keys[keybinds.A_Attack] = false }
     
-    let THRESHOLD = 0.02
-    if(data.axes.left[0] > THRESHOLD && keys.d == false){
-    	keys.d = true
-      player.lastKey = 'd'
+    if(data.buttons.B){ keys[keybinds.B_Attack] = true }
+    else{ keys[keybinds.B_Attack] = false }
+    
+    if(data.buttons.X){ keys[keybinds.Jump] = true }
+    else{ keys[keybinds.Jump] = false }
+    
+    if(data.buttons.Y){ keys[keybinds.Ultimate] = true }
+    else{ keys[keybinds.Ultimate] = false }
+    
+    if(data.buttons.Left){ keys[keybinds.Left] = true }
+    else{ keys[keybinds.Left] = false }
+    
+    if(data.buttons.Right){ keys[keybinds.Right] = true }
+    else{ keys[keybinds.Right] = false }
+    
+    if(data.buttons.Select || data.buttons.Start || data.buttons.Home){ keys[keybinds.Pause] = true }
+    else{ keys[keybinds.Pause] = false }
+    
+    let THRESHOLD = 0.3
+    if(data.axes.left[0] > THRESHOLD && keys[keybinds.Right] == false){
+    	keys[keybinds.Right] = true
     }
-    else if(data.axes.left[0] < -THRESHOLD && keys.a == false){
-    	keys.a = true
-      player.lastKey = 'a'
+    else if(data.axes.left[0] < -THRESHOLD && keys[keybinds.Left] == false){
+    	keys[keybinds.Left] = true
+    }
+    
+    THRESHOLD = 0.8
+    if(data.axes.left[1] > THRESHOLD && keys[keybinds.Shield] == false){
+    	keys[keybinds.Shield] = true
+    }
+    else if(data.axes.left[1] < -THRESHOLD && keys[keybinds.Up] == false){
+    	keys[keybinds.Up] = true
     }
   }
 }

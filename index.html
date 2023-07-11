@@ -129,7 +129,9 @@ class Sprite {
     scale = 1,
     framesMax = 1,
     offset = { x: 0, y: 0 },
-    size = {}
+    size = {},
+    random = false,
+    delUnder = {do: false, y: 1000}
   }) {
     this.position = position
     this.image = new Image()
@@ -142,6 +144,9 @@ class Sprite {
     this.framesElapsed = 0
     this.framesHold = 5
     this.offset = offset
+    
+    this.random = random
+    this.delUnder = delUnder
   }
 
   draw() {
@@ -159,9 +164,13 @@ class Sprite {
   }
 
   animateFrames() {
-    this.framesElapsed++
+  	this.framesElapsed++
 
     if (this.framesElapsed % this.framesHold === 0) {
+    	if(this.random){
+        this.framesHold = randomInt(5, 50)
+      }
+    
       if (this.framesCurrent < this.framesMax - 1) {
         this.framesCurrent++
       } else {
@@ -270,17 +279,19 @@ class Fighter extends Sprite {
     facingRight = true,
     characterName = "Player",
     attacks = {
-    	"Neutral_B": null,
-      "Side_B": null,
-      "Up_B": null,
-      "Down_B": null,
+      "Neutral_B": ()=>{},
+      "Side_B": ()=>{},
+      "Up_B": ()=>{},
+      "Down_B": ()=>{},
 
-      "Neutral_A": null,
-      "Side_A": null,
-      "LeftSide_A_air": null,
-      "RightSide_A_air": null,
-      "Down_A": null,
-      "Up_A": null,
+      "Neutral_A": ()=>{},
+      "Side_A": ()=>{},
+      "LeftSide_A_air": ()=>{},
+      "RightSide_A_air": ()=>{},
+      "Down_A": ()=>{},
+      "Up_A": ()=>{},
+      
+      "Ultimate": ()=>{},
     }
   }) {
     super({
@@ -320,7 +331,9 @@ class Fighter extends Sprite {
     this.damage = 0
     this.immunityFrames = 0
     this.character = characterName
-		
+		this.attacks = attacks
+    
+    this.hasUltimate = false
 
     for (const sprite in this.sprites) {
       sprites[sprite].image = new Image()
@@ -414,6 +427,10 @@ class Fighter extends Sprite {
 
       if(keys[keybinds.Jump]){
         this.jump()
+      }
+      if (keys[keybinds.Ultimate] && this.hasUltimate) {
+      	this.hasUltimate = false
+        this.attacks["Ultimate"](this.color)
       }
       if(keys[keybinds.A_Attack]){
         if(keys[keybinds.Right] && this.onGround==true){
@@ -620,6 +637,30 @@ class Fighter extends Sprite {
         }
         break
     }
+  }
+}
+</script>
+
+<script>
+// Custom Attacks (assignable)
+function binaryRain(count, dmg, summonerColor){
+	for(var i=0;i<count;i++){
+  	let x = randomInt(0, canvas.width)
+  	//let y = randomInt(-100, -1500)
+    let y = randomInt(-100, -(count*150))
+    
+		let e = new Sprite({
+      position: {
+        x: x,
+        y: y
+      },
+      imageSrc: 'https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/binary_number.png?raw=true',
+      scale: canvasScale * 5,
+      random: true,
+      framesMax: 2,
+      delUnder: {y: canvas.height, do: true},
+    })
+    damageSprites.push({entity:e, dmg: dmg, color: summonerColor})
   }
 }
 </script>
