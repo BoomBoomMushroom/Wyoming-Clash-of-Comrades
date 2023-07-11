@@ -47,6 +47,12 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
 function randomInt(min,max){
 	return Math.floor(Math.random() * (max-min+1))+min
 }
+function distance(p1, p2){
+	return Math.sqrt( Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2) )
+}
+function calculateGravity(toPoint, fromPoint, gravity){
+	
+}
 
 c.fillRect(0, 0, canvas.width, canvas.height)
 
@@ -57,21 +63,6 @@ var entities = []
 var items = []
 var damageSprites = []
 
-let emptyAttacks = {
-  "Neutral_B": ()=>{},
-  "Side_B": ()=>{},
-  "Up_B": ()=>{},
-  "Down_B": ()=>{},
-
-  "Neutral_A": ()=>{},
-  "Side_A": ()=>{},
-  "LeftSide_A_air": ()=>{},
-  "RightSide_A_air": ()=>{},
-  "Down_A": ()=>{},
-  "Up_A": ()=>{},
-  
-  "Ultimate": ()=>{},
-}
 let characterBuilds = {
 	"Colin": {
     "Neutral_B": ()=>{},
@@ -86,7 +77,22 @@ let characterBuilds = {
     "Down_A": ()=>{},
     "Up_A": ()=>{},
 
-    "Ultimate": (color)=>{binaryRain(10, 3, color)},
+    "Ultimate": (color, user)=>{binaryRain(10, 3, color)},
+  },
+  "Dillion": {
+    "Neutral_B": ()=>{},
+    "Side_B": ()=>{},
+    "Up_B": ()=>{},
+    "Down_B": ()=>{},
+
+    "Neutral_A": ()=>{},
+    "Side_A": ()=>{},
+    "LeftSide_A_air": ()=>{},
+    "RightSide_A_air": ()=>{},
+    "Down_A": ()=>{},
+    "Up_A": ()=>{},
+
+    "Ultimate": (color, user)=>{spawnBlackhole(color, user)},
   }
 }
 
@@ -169,10 +175,10 @@ entities.push(player)
 
 const enemy = new Fighter({
 	playerIndex: 1,
-  characterName: "Colin",
+  characterName: "Dillion",
   color: 'blue',
   facingRight: false,
-  attacks: emptyAttacks,
+  attacks: characterBuilds["Dillion"],
   
   position: {
     x: 400 * canvasScale,
@@ -250,12 +256,46 @@ function animate() {
   
   for(var i=0;i<damageSprites.length;i++){
   	var entity = damageSprites[i]
+    if(entity.scaleTo != null && entity.scaleFrom != null){
+    	entity.entity.scale = entity.scaleFrom * canvasScale
+    	if(entity.scaleFrom < entity.scaleTo){ entity.scaleFrom += 1 }
+    }
+    
+    if(entity.life != null){
+    	if(entity.life < 0){
+      	damageSprites.splice(i, 1)
+      }
+    	entity.life -= 1
+    }
     entity.entity.update()
-    entity.entity.position.y += gravity * 10
+    entity.entity.position.x += entity.vel.x
+    entity.entity.position.y += entity.vel.y
+    
+    let center = {
+    	x: entity.entity.position.x + entity.entity.width,
+    	y: entity.entity.position.y + entity.entity.height,
+    }
+    
+    if(entity.pullUser){
+    	for(var j=0;j<entities.length;j++){      
+      	if(entities[j].color == entity.color){continue}
+        
+        let cent = {
+        	x: entities[j].position.x + (entities[j].width/2),
+          y: entities[j].position.y + (entities[j].height/2),
+        }
+        
+      	let force = distance(center, cent)
+        force = 1/force
+        force += 1
+        let a = cent.x > center.x
+				let b = cent.y > center.y
+        entities[j].velocity.x += a ? -force : force
+        entities[j].velocity.y += b ? -force/4 : force/4
+      }
+    }
     
     let e = entity.entity
-    //e.delUnder.y = canvas.height
-    
     if(e.position.y > e.delUnder.y && e.delUnder.do){
     	damageSprites.splice(i, 1)
     }
@@ -268,6 +308,18 @@ function animate() {
   	var entity = entities[i]
     entity.update()
     entity.gameLoopUpdates()
+    
+    
+    for(var j=0;j<damageSprites.length;j++){
+    	let atkBox = {attackBox: damageSprites[j].entity}
+      let collide = rectangularCollision({rectangle1:atkBox, rectangle2:entity})
+      if(collide && entity.color != damageSprites[j].color){
+      	damageSprites[j].uses -= 1
+        entity.takeHit(damageSprites[j].dmg, damageSprites[j].entity.position)
+        if(damageSprites[j].uses <= 0){ damageSprites.splice(j, 1) }
+      }
+    }
+    
   }
   
   for(var i=0;i<items.length;i++){

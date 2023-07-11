@@ -370,7 +370,7 @@ class Fighter extends Sprite {
       	this.attackBox.position.x,
        	this.attackBox.position.y,
        	this.attackBox.width,
-   			this.attackBox.height
+   			this.attackBox.heightd
     	)
       
       // draw player's hitbox
@@ -406,6 +406,9 @@ class Fighter extends Sprite {
     if(velX != 0){
     	this.velocity.x += velX > 0 ? -drag : drag
     }
+    let round = 10
+    this.velocity.x = Math.floor(this.velocity.x*round)/round
+    this.velocity.y = Math.floor(this.velocity.y*round)/round
     
     if(this.dead==false && this.stunFrames <= 0){
       // Keys
@@ -430,7 +433,7 @@ class Fighter extends Sprite {
       }
       if (keys[keybinds.Ultimate] && this.hasUltimate) {
       	this.hasUltimate = false
-        this.attacks["Ultimate"](this.color)
+        this.attacks["Ultimate"](this.color, this)
       }
       if(keys[keybinds.A_Attack]){
         if(keys[keybinds.Right] && this.onGround==true){
@@ -660,7 +663,37 @@ function binaryRain(count, dmg, summonerColor){
       framesMax: 2,
       delUnder: {y: canvas.height, do: true},
     })
-    damageSprites.push({entity:e, dmg: dmg, color: summonerColor})
+    damageSprites.push({
+    	entity:e,
+      dmg: dmg,
+      color: summonerColor,
+      vel: {x:gravity*10,y:0},
+      uses: 1,
+   })
   }
+}
+function spawnBlackhole(summonerColor, user){  
+  let e = new Sprite({
+    position: {
+    	x: user.position.x,
+      y: user.position.y,
+    },
+    imageSrc: 'https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/blackhole.png?raw=true',
+    scale: canvasScale * 0,
+    framesMax: 9,
+  })
+  damageSprites.push({
+  	entity:e,
+    color: summonerColor,
+    vel: {x:0,y:0},
+   	pullUser: true,
+    
+    dmgDist: 1,
+    dmg: 3,
+    scaleTo: 5,
+    scaleFrom: 0,
+    life: 100,
+    uses: Infinity,
+  })
 }
 </script>
