@@ -95,14 +95,14 @@ let characterBuilds = {
     "Neutral_B": ()=>{},
     "Side_B": ()=>{},
     "Up_B": ()=>{},
-    "Down_B": ()=>{},
+    "Down_B": spawnTurret,
 
     "Neutral_A": ()=>{},
     "Side_A": ()=>{},
     "LeftSide_A_air": ()=>{},
     "RightSide_A_air": ()=>{},
     "Down_A": ()=>{},
-    "Up_A": ()=>{},
+    "Up_A": dillionUpA,
 
     "Ultimate": (color, user)=>{spawnBlackhole(color, user)},
   }
@@ -270,6 +270,8 @@ function animate() {
   	let turret = turrets[i]
     if(turret.cooldown == null){ turret.cooldown = 0 }
     else{ turret.cooldown -= 1 }
+    turret.life -= 1
+    if(turret.life <= 0){ turrets.splice(i, 1) }
     
     let closestIndex = closestEntity(turret.entity.position, turret.color)
     if(closestIndex == -1){ continue }
@@ -335,6 +337,32 @@ function animate() {
     }
   }
   
+  c.fillStyle = 'rgba(255, 255, 255, 0.15)'
+  c.fillRect(0, 0, canvas.width, canvas.height)
+  
+	for(var i=0;i<entities.length;i++){
+  	let entity = entities[i]
+    entity.update()
+    entity.gameLoopUpdates()
+    
+    
+    for(var j=0;j<damageSprites.length;j++){
+    	let atkBox = {attackBox: damageSprites[j].entity}
+      let collide = rectangularCollision({rectangle1:atkBox, rectangle2:entity})
+      if(collide && entity.color != damageSprites[j].color){
+      	damageSprites[j].uses -= 1
+        entity.takeHit(damageSprites[j].dmg, damageSprites[j].entity.position)
+        if(damageSprites[j].uses <= 0){ damageSprites.splice(j, 1) }
+      }
+    }
+    
+  }
+  
+  for(var i=0;i<items.length;i++){
+  	var item = items[i]
+    item.update()
+  }
+  
   for(var i=0;i<damageSprites.length;i++){
   	var entity = damageSprites[i]
     if(entity.scaleTo != null && entity.scaleFrom != null){
@@ -349,8 +377,10 @@ function animate() {
     	entity.life -= 1
     }
     entity.entity.update()
-    entity.entity.position.x += entity.vel.x
-    entity.entity.position.y += entity.vel.y
+    if(entity.vel){
+      entity.entity.position.x += entity.vel.x
+      entity.entity.position.y += entity.vel.y
+    }
     
     let center = {
     	x: entity.entity.position.x + entity.entity.width,
@@ -381,32 +411,6 @@ function animate() {
     	damageSprites.splice(i, 1)
     }
 	}
-  
-  c.fillStyle = 'rgba(255, 255, 255, 0.15)'
-  c.fillRect(0, 0, canvas.width, canvas.height)
-  
-	for(var i=0;i<entities.length;i++){
-  	let entity = entities[i]
-    entity.update()
-    entity.gameLoopUpdates()
-    
-    
-    for(var j=0;j<damageSprites.length;j++){
-    	let atkBox = {attackBox: damageSprites[j].entity}
-      let collide = rectangularCollision({rectangle1:atkBox, rectangle2:entity})
-      if(collide && entity.color != damageSprites[j].color){
-      	damageSprites[j].uses -= 1
-        entity.takeHit(damageSprites[j].dmg, damageSprites[j].entity.position)
-        if(damageSprites[j].uses <= 0){ damageSprites.splice(j, 1) }
-      }
-    }
-    
-  }
-  
-  for(var i=0;i<items.length;i++){
-  	var item = items[i]
-    item.update()
-  }
   
   if(debug){
   	c.fillStyle = 'black'

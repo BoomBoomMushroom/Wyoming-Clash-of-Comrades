@@ -463,43 +463,43 @@ class Fighter extends Sprite {
         this.attacks["Ultimate"](this.color, this)
       }
       if(keys[keybinds.A_Attack]){
-        if(keys[keybinds.Right] && this.onGround==true){
-          this.attacks["Side_A"]("Right")
+        if(keys[keybinds.Right] && this.onGround==true && this.cooldowns.Side_A <= 0){
+          this.cooldowns.Side_A = this.attacks["Side_A"]("Right")
         }
-        else if(keys[keybinds.Left && this.onGround==true]){
-          this.attacks["Side_A"]("Left")
+        else if(keys[keybinds.Left] && this.onGround==true && this.cooldowns.Side_A <= 0){
+          this.cooldowns.Side_A = this.attacks["Side_A"]("Left")
         }
-        else if(keys[keybinds.Right] && this.onGround==false){
-          this.attacks["RightSide_A_air"]()
+        else if(keys[keybinds.Right] && this.onGround==false && this.cooldowns.RightSide_A_air <= 0){
+          this.cooldowns.RightSide_A_air = this.attacks["RightSide_A_air"]()
         }
-        else if(keys[keybinds.Left && this.onGround==false]){
-          this.attacks["LeftSide_A_air"]()
+        else if(keys[keybinds.Left] && this.onGround==false && this.cooldowns.LeftSide_A_air <= 0){
+          this.cooldowns.LeftSide_A_air = this.attacks["LeftSide_A_air"]()
         }
-        else if(keys[keybinds.Jump]){
-          this.attacks["Up_A"]()
+        else if(keys[keybinds.Jump] && this.cooldowns.Up_A <= 0){
+          this.cooldowns.Up_A = this.attacks["Up_A"](this.color, this)
         }
-        else if(keys[keybinds.Shield]){
-          this.attacks["Down_A"]()
+        else if(keys[keybinds.Shield] && this.cooldowns.Down_A <= 0){
+          this.cooldowns.Down_A = this.attacks["Down_A"]()
         }
-        else {
-          this.attacks["Neutral_A"]()
+        else if(this.cooldowns.Neutral_A <= 0){
+          this.cooldowns.Neutral_A = this.attacks["Neutral_A"]()
         }
       }
       if(keys[keybinds.B_Attack]){
-        if(keys[keybinds.Right]){
-          this.attacks["Side_B"]("Right")
+        if(keys[keybinds.Right] && this.cooldowns.Side_B <= 0){
+          this.cooldowns.Side_B = this.attacks["Side_B"]("Right")
         }
-        else if(keys[keybinds.Left]){
-          this.attacks["Side_B"]("Left")
+        else if(keys[keybinds.Left] && this.cooldowns.Side_B <= 0){
+          this.cooldowns.Side_B = this.attacks["Side_B"]("Left")
         }
-        else if(keys[keybinds.Jump]){
-          this.attacks["Up_B"]()
+        else if(keys[keybinds.Jump] && this.cooldowns.Up_B <= 0){
+          this.cooldowns.Up_B = this.attacks["Up_B"]()
         }
-        else if(keys[keybinds.Shield]){
-          this.attacks["Down_B"]()
+        else if(keys[keybinds.Shield] && this.cooldowns.Down_B <= 0){
+          this.cooldowns.Down_B = this.attacks["Down_B"](this.color, this)
         }
-        else {
-          this.attacks["Neutral_B"]()
+        else if( this.cooldowns.Neutral_B <= 0) {
+          this.cooldowns.Neutral_B = this.attacks["Neutral_B"]()
         }
       }
     }
@@ -724,6 +724,13 @@ function spawnBlackhole(summonerColor, user){
   })
 }
 function spawnTurret(summonerColor, user){
+	let usetTurretCount = 0
+  for(var i=0;i<turrets.length;i++){
+  	let turret = turrets[i]
+    if(turret.summoner == user){ usetTurretCount += 1 }
+  }
+  if(usetTurretCount >= 3){ return 0 }
+
 	let e = new Sprite({
     position: {
     	x: user.position.x,
@@ -746,8 +753,44 @@ function spawnTurret(summonerColor, user){
       "https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/dillion_turrets/turret_left_45.png?raw=true",
     ],
     summoner: user,
-    bullet: "https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/bullet.png?raw=true"
+    bullet: "https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/bullet.png?raw=true",
+    life: 5000,
+    // 1000 ~= 13sec
+    // 5000 maybe 65sec
   })
   return 30
+}
+function explosionCreate(summonerColor, position){
+  let e = new Sprite({
+    position: position,
+    imageSrc: 'https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/explosion.png?raw=true',
+    scale: canvasScale * 7,
+    framesMax: 7,
+  })
+  damageSprites.push({
+    entity: e,
+    dmg: randomInt(20, 45),
+    color: summonerColor,
+    uses: 1,
+    life: 30,
+ })
+}
+function dillionUpA(color, user){
+	explosionCreate(color, {
+  	x: user.position.x - (user.width/2),
+    y: user.position.y - (user.height/2)
+  })
+  for(var i=0;i<turrets.length;i++){
+  	if(turrets[i] == null){ continue }
+		if(turrets[i].summoner != user){ return }
+  	let pos = {
+    	x: turrets[i].entity.position.x - (turrets[i].entity.width/2),
+      y: turrets[i].entity.position.y - (turrets[i].entity.height/2)
+    }
+  	explosionCreate(color, pos)
+    turrets.splice(i, 1)
+    i -= 1
+  }
+  return 300
 }
 </script>
