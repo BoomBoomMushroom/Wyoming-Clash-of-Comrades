@@ -80,14 +80,14 @@ let characterBuilds = {
     "Neutral_B": ()=>{},
     "Side_B": ()=>{},
     "Up_B": ()=>{},
-    "Down_B": ()=>{},
+    "Down_B": (summonerColor, user)=>{},
 
     "Neutral_A": ()=>{},
     "Side_A": ()=>{},
     "LeftSide_A_air": ()=>{},
     "RightSide_A_air": ()=>{},
     "Down_A": ()=>{},
-    "Up_A": ()=>{},
+    "Up_A": (color,user)=>{},
 
     "Ultimate": (color, user)=>{binaryRain(10, 3, color)},
   },
@@ -95,17 +95,32 @@ let characterBuilds = {
     "Neutral_B": ()=>{},
     "Side_B": ()=>{},
     "Up_B": ()=>{},
-    "Down_B": spawnTurret,
+    "Down_B": (summonerColor, user)=>{spawnTurret(summonerColor, user)},
 
     "Neutral_A": ()=>{},
     "Side_A": ()=>{},
     "LeftSide_A_air": ()=>{},
     "RightSide_A_air": ()=>{},
     "Down_A": ()=>{},
-    "Up_A": dillionUpA,
+    "Up_A": (color,user)=>{dillionUpA(color, user)},
 
     "Ultimate": (color, user)=>{spawnBlackhole(color, user)},
-  }
+  },
+  "Jackson": {
+    "Neutral_B": ()=>{},
+    "Side_B": ()=>{},
+    "Up_B": ()=>{},
+    "Down_B": (summonerColor, user)=>{},
+
+    "Neutral_A": ()=>{},
+    "Side_A": ()=>{},
+    "LeftSide_A_air": ()=>{},
+    "RightSide_A_air": ()=>{},
+    "Down_A": ()=>{},
+    "Up_A": (color,user)=>{},
+
+    "Ultimate": (color, user)=>{},
+  },
 }
 
 const background = new Sprite({
@@ -200,10 +215,6 @@ const enemy = new Fighter({
     x: 0,
     y: 0
   },
-  offset: {
-    x: -50 * canvasScale,
-    y: 0 * canvasScale
-  },
   imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Idle.png',
   framesMax: 4,
   scale: canvasScale * 2.5,
@@ -213,32 +224,74 @@ const enemy = new Fighter({
   },
   sprites: {
     idle: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Idle.png',
-      framesMax: 4
+      imageSrc: 'https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/characters/dillion/dillion.png?raw=true',
+      framesMax: 1,
+      
+      offset: {
+      	x: 0 * canvasScale,
+        y: -3 * canvasScale
+      },
+      scale: 0.15
     },
     run: {
       imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Run.png',
-      framesMax: 8
+      framesMax: 8,
+      
+      offset: {
+        x: 215 * canvasScale,
+        y: 167 * canvasScale
+      },
+      scale: canvasScale * 2.5
     },
     jump: {
       imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Jump.png',
-      framesMax: 2
+      framesMax: 2,
+      
+      offset: {
+        x: 215 * canvasScale,
+        y: 167 * canvasScale
+      },
+      scale: canvasScale * 2.5
     },
     fall: {
       imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Fall.png',
-      framesMax: 2
+      framesMax: 2,
+      
+      offset: {
+        x: 215 * canvasScale,
+        y: 167 * canvasScale
+      },
+      scale: canvasScale * 2.5
     },
     attack1: {
       imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Attack1.png',
-      framesMax: 4
+      framesMax: 4,
+      
+      offset: {
+        x: 215 * canvasScale,
+        y: 167 * canvasScale
+      },
+      scale: canvasScale * 2.5
     },
     takeHit: {
       imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Take hit.png',
-      framesMax: 3
+      framesMax: 3,
+      
+      offset: {
+        x: 215 * canvasScale,
+        y: 167 * canvasScale
+      },
+      scale: canvasScale * 2.5
     },
     death: {
       imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Death.png',
-      framesMax: 7
+      framesMax: 7,
+      
+      offset: {
+        x: 215 * canvasScale,
+        y: 167 * canvasScale
+      },
+      scale: canvasScale * 2.5
     }
   },
   attackBox: {
@@ -371,13 +424,13 @@ function animate() {
     }
     
     if(entity.life != null){
-    	if(entity.life < 0){
+    	entity.life -= 1
+      if(entity.life < 0){
       	damageSprites.splice(i, 1)
       }
-    	entity.life -= 1
     }
     entity.entity.update()
-    if(entity.vel){
+    if(entity.vel != null){
       entity.entity.position.x += entity.vel.x
       entity.entity.position.y += entity.vel.y
     }

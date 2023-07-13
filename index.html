@@ -577,12 +577,13 @@ class Fighter extends Sprite {
     this.damage += dmg
     this.immunityFrames = 5
     
+    let dampen = 4.25
     if(this.position.x > src.x){
-    	this.velocity.x += (this.damage/3)
+    	this.velocity.x += (this.damage/dampen)
       this.velocity.y -= 3
     }
     else{
-    	this.velocity.x -= (this.damage/3)
+    	this.velocity.x -= (this.damage/dampen)
       this.velocity.y -= 3
     }
 
@@ -611,62 +612,22 @@ class Fighter extends Sprite {
       this.framesCurrent < this.sprites.takeHit.framesMax - 1
     )
       return
-
-    switch (sprite) {
-      case 'idle':
-        if (this.image !== this.sprites.idle.image) {
-          this.image = this.sprites.idle.image
-          this.framesMax = this.sprites.idle.framesMax
-          this.framesCurrent = 0
-        }
-        break
-      case 'run':
-        if (this.image !== this.sprites.run.image) {
-          this.image = this.sprites.run.image
-          this.framesMax = this.sprites.run.framesMax
-          this.framesCurrent = 0
-        }
-        break
-      case 'jump':
-        if (this.image !== this.sprites.jump.image) {
-          this.image = this.sprites.jump.image
-          this.framesMax = this.sprites.jump.framesMax
-          this.framesCurrent = 0
-        }
-        break
-
-      case 'fall':
-        if (this.image !== this.sprites.fall.image) {
-          this.image = this.sprites.fall.image
-          this.framesMax = this.sprites.fall.framesMax
-          this.framesCurrent = 0
-        }
-        break
-
-      case 'attack1':
-        if (this.image !== this.sprites.attack1.image) {
-          this.image = this.sprites.attack1.image
-          this.framesMax = this.sprites.attack1.framesMax
-          this.framesCurrent = 0
-        }
-        break
-
-      case 'takeHit':
-        if (this.image !== this.sprites.takeHit.image) {
-          this.image = this.sprites.takeHit.image
-          this.framesMax = this.sprites.takeHit.framesMax
-          this.framesCurrent = 0
-        }
-        break
-
-      case 'death':
-        if (this.image !== this.sprites.death.image) {
-          this.image = this.sprites.death.image
-          this.framesMax = this.sprites.death.framesMax
-          this.framesCurrent = 0
-        }
-        break
+	
+  	
+  	if( this.image !== this.sprites[sprite].image ){
+      this.image				 = this.sprites[sprite].image
+      this.framesMax		 = this.sprites[sprite].framesMax
+      this.framesCurrent = 0
+      
+      if( this.sprites[sprite].scale != null ){
+      	this.scale = this.sprites[sprite].scale
+      }
+      if(this.sprites[sprite].offset != null){
+      	this.offset = this.sprites[sprite].offset
+      }
     }
+    
+    
   }
 }
 </script>
@@ -691,11 +652,14 @@ function binaryRain(count, dmg, summonerColor){
       delUnder: {y: canvas.height, do: true},
     })
     damageSprites.push({
-    	entity:e,
+    	entity: e,
       dmg: dmg,
       color: summonerColor,
-      vel: {x:gravity*10,y:0},
+      vel: {x:0, y:gravity*10},
       uses: 1,
+      
+      pullUser: false,
+      life: Infinity,
    })
   }
 }
@@ -710,7 +674,7 @@ function spawnBlackhole(summonerColor, user){
     framesMax: 9,
   })
   damageSprites.push({
-  	entity:e,
+  	entity: e,
     color: summonerColor,
     vel: {x:0,y:0},
    	pullUser: true,
@@ -719,7 +683,7 @@ function spawnBlackhole(summonerColor, user){
     dmg: 3,
     scaleTo: 5,
     scaleFrom: 0,
-    life: 100,
+    life: 250, // 5 seconds?
     uses: Infinity,
   })
 }
