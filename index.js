@@ -56,8 +56,8 @@ function closestEntity(point, colorExclude){
 
 	for(var i=0;i<entities.length;i++){
   	let entity = entities[i]
-    if(colorExclude){
-    	if(entity.color == colorExclude){continue}
+    if(colorExclude && entity.color == colorExclude){
+    	continue
     }
     let d = distance(point, entity.position)
     if(d < dist){ cIndex = i; dist = d }
@@ -224,7 +224,7 @@ const enemy = new Fighter({
   },
   sprites: {
     idle: {
-      imageSrc: 'https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/blob/main/sprites/characters/dillion/dillion.png?raw=true',
+      imageSrc: './sprites/characters/dillion/dillion_idle_left.png',
       framesMax: 1,
       
       offset: {
