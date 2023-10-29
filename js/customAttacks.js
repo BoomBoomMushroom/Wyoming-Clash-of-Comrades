@@ -1,4 +1,6 @@
 // Custom Attacks (assignable)
+
+// Colin Attacks
 function binaryRain(count, dmg, summonerColor){
 	for(var i=0;i<count;i++){
   	let x = randomInt(0, canvas.width)
@@ -10,7 +12,7 @@ function binaryRain(count, dmg, summonerColor){
         x: x,
         y: y
       },
-      imageSrc: './sprites/binary_number.png',
+      imageSrc: './sprites/attacks/binary_number.png',
       scale: canvasScale * 5,
       random: true,
       framesMax: 2,
@@ -28,30 +30,8 @@ function binaryRain(count, dmg, summonerColor){
    })
   }
 }
-function spawnBlackhole(summonerColor, user){  
-  let e = new Sprite({
-    position: {
-    	x: user.position.x,
-      y: user.position.y,
-    },
-    imageSrc: './sprites/blackhole.png',
-    scale: canvasScale * 0,
-    framesMax: 9,
-  })
-  damageSprites.push({
-  	entity: e,
-    color: summonerColor,
-    vel: {x:0,y:0},
-   	pullUser: true,
-    
-    dmgDist: 1,
-    dmg: 3,
-    scaleTo: 5,
-    scaleFrom: 0,
-    life: 250, // 5 seconds?
-    uses: Infinity,
-  })
-}
+
+// Dillion Attacks
 function spawnTurret(summonerColor, user){
 	let usetTurretCount = 0
   for(var i=0;i<turrets.length;i++){
@@ -89,22 +69,9 @@ function spawnTurret(summonerColor, user){
   })
   return 30
 }
-function explosionCreate(summonerColor, position){
-  let e = new Sprite({
-    position: position,
-    imageSrc: './sprites/attacks/explosion.png',
-    scale: canvasScale * 7,
-    framesMax: 7,
-  })
-  damageSprites.push({
-    entity: e,
-    dmg: randomInt(20, 45),
-    color: summonerColor,
-    uses: 1,
-    life: 30,
- })
-}
-function dillionUpA(color, user){
+
+function dillionUpA_DestroyTurrets(color, user){
+  // Destroy all your turrets
 	explosionCreate(color, {
   	x: user.position.x - (user.width/2),
     y: user.position.y - (user.height/2)
@@ -121,4 +88,51 @@ function dillionUpA(color, user){
     i -= 1
   }
   return 300
+}
+
+function spawnBlackhole(summonerColor, user){  
+  let e = new Sprite({
+    position: {
+    	x: user.position.x,
+      y: user.position.y,
+    },
+    imageSrc: './sprites/attacks/blackhole.png',
+    scale: canvasScale * 0,
+    framesMax: 9,
+  })
+  damageSprites.push({
+  	entity: e,
+    color: summonerColor,
+    vel: {x:0,y:0},
+   	pullUser: true,
+    
+    dmgDist: 1,
+    dmg: 3,
+    scaleTo: 5,
+    scaleFrom: 0,
+    life: 250, // 5 seconds?
+    uses: Infinity,
+  })
+}
+
+
+
+
+
+// Misc help functions
+
+function explosionCreate(summonerColor, position){
+  let e = new Sprite({
+    position: position,
+    imageSrc: './sprites/attacks/explosion.png',
+    scale: canvasScale * 7,
+    framesMax: 7,
+  })
+  damageSprites.push({
+    entity: e,
+    dmg: randomInt(20, 45),
+    color: summonerColor,
+    uses: 1,
+    life: 30,
+ })
 }

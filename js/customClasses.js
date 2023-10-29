@@ -225,10 +225,41 @@ class Fighter extends Sprite {
     }
     
     this.hasUltimate = false
+    this.lastMove = ""
+    /*
+      last moves can be:
+      neutral_b
+      side_b
+      up_b
+      down_b
+
+      neutral_a
+      side_a
+      LeftSide_A_air
+      RightSide_A_air
+      down_a
+      up_a
+
+      ultimate
+    */
 
     for (const sprite in this.sprites) {
-      sprites[sprite].image = new Image()
-      sprites[sprite].image.src = sprites[sprite].imageSrc
+
+      if(sprites[sprite].imageSrc != null){
+        sprites[sprite].image = new Image()
+        sprites[sprite].image.src = sprites[sprite].imageSrc
+        continue
+      }
+      
+      if(typeof(sprites[sprite].right) == "object") continue
+
+      let rightSrc = sprites[sprite].right + ""
+      sprites[sprite].right = new Image()
+      sprites[sprite].right.src = rightSrc
+
+      let leftSrc = sprites[sprite].left + ""
+      sprites[sprite].left = new Image()
+      sprites[sprite].left.src = leftSrc
     }
   }
 
@@ -236,21 +267,15 @@ class Fighter extends Sprite {
     this.draw()
     this.drawPercent()
     if (!this.dead){
-        this.animateFrames()
+      this.animateFrames()
       this.immunityFrames -= 1
       this.stunFrames -= 1
       
-
-      this.cooldowns.Neutral_B -= 1
-      this.cooldowns.Side_B -= 1
-      this.cooldowns.Up_B -= 1
-      this.cooldowns.Down_B -= 1
-      this.cooldowns.Neutral_A -= 1
-      this.cooldowns.Side_A -= 1
-      this.cooldowns.LeftSide_A_air -= 1
-      this.cooldowns.RightSide_A_air -= 1
-      this.cooldowns.Down_A -= 1
-      this.cooldowns.Up_A -= 1
+      let attkCooldownKeys = Object.keys(this.cooldowns)
+      for(let i=0;i<attkCooldownKeys.length;i++){
+        this.cooldowns[attkCooldownKeys[i]] -= 1
+        if(isNaN(this.cooldowns[attkCooldownKeys[i]])) this.cooldowns[attkCooldownKeys[i]] = 0
+      }
     }
 
     // attack boxes
@@ -259,22 +284,22 @@ class Fighter extends Sprite {
       this.attackBox.position.y = this.position.y + this.attackBox.offsetRight.y
     }
     else{
-        this.attackBox.position.x = this.position.x + this.attackBox.offsetLeft.x
+      this.attackBox.position.x = this.position.x + this.attackBox.offsetLeft.x
       this.attackBox.position.y = this.position.y + this.attackBox.offsetLeft.y
     }
 
-        if(debug){
-        // draw the attack box
+    if(debug){
+      // draw the attack box
       c.fillStyle = 'rgba(255, 255, 255, 0.15)'
       if(rectangularCollision({rectangle1: player,rectangle2: enemy})){
-          c.fillStyle = 'rgba(255, 0, 0, 0.15)'
+        c.fillStyle = 'rgba(255, 0, 0, 0.15)'
       }
-          c.fillRect(
-          this.attackBox.position.x,
-            this.attackBox.position.y,
-            this.attackBox.width,
-                this.attackBox.heightd
-        )
+      c.fillRect(
+        this.attackBox.position.x,
+        this.attackBox.position.y,
+        this.attackBox.width,
+        this.attackBox.height
+      )
       
       // draw player's hitbox
       c.fillStyle = 'rgba(0, 255, 0, 0.15)'
@@ -302,86 +327,23 @@ class Fighter extends Sprite {
     }
   }
 
-    gameLoopUpdates(){
-      let keybinds = userKeys[this.playerIndex]
-    let drag = .5
-    let velX = this.velocity.x
-    if(velX != 0){
-        this.velocity.x += velX > 0 ? -drag : drag
-    }
-    let round = 10
-    this.velocity.x = Math.floor(this.velocity.x*round)/round
-    this.velocity.y = Math.floor(this.velocity.y*round)/round
-    
-    if(this.dead==false && this.stunFrames <= 0){
-      // Keys
-      let hasMoved = false
-      let speed = 5 * canvasScale
-      
-      if (keys[keybinds.Left] && this.velocity.x > -speed) {
-        this.velocity.x += -speed
-        hasMoved = true
-        this.facingRight = false
-      }
-      if (keys[keybinds.Right] && this.velocity.x < speed ) {
-        this.velocity.x += speed
-        hasMoved = true
-        this.facingRight = true
-      }
-      if(this.velocity.x != 0){ this.switchSprite('run') }
-      else{ this.switchSprite('idle') }
+  gameLoopUpdates(){
 
-      if(keys[keybinds.Jump]){
-        this.jump()
-      }
-      if (keys[keybinds.Ultimate] && this.hasUltimate) {
-          this.hasUltimate = false
-        this.attacks["Ultimate"](this.color, this)
-      }
-      if(keys[keybinds.A_Attack]){
-        if(keys[keybinds.Right] && this.onGround==true && this.cooldowns.Side_A <= 0){
-          this.cooldowns.Side_A = this.attacks["Side_A"]("Right")
-        }
-        else if(keys[keybinds.Left] && this.onGround==true && this.cooldowns.Side_A <= 0){
-          this.cooldowns.Side_A = this.attacks["Side_A"]("Left")
-        }
-        else if(keys[keybinds.Right] && this.onGround==false && this.cooldowns.RightSide_A_air <= 0){
-          this.cooldowns.RightSide_A_air = this.attacks["RightSide_A_air"]()
-        }
-        else if(keys[keybinds.Left] && this.onGround==false && this.cooldowns.LeftSide_A_air <= 0){
-          this.cooldowns.LeftSide_A_air = this.attacks["LeftSide_A_air"]()
-        }
-        else if(keys[keybinds.Jump] && this.cooldowns.Up_A <= 0){
-          this.cooldowns.Up_A = this.attacks["Up_A"](this.color, this)
-        }
-        else if(keys[keybinds.Shield] && this.cooldowns.Down_A <= 0){
-          this.cooldowns.Down_A = this.attacks["Down_A"]()
-        }
-        else if(this.cooldowns.Neutral_A <= 0){
-          this.cooldowns.Neutral_A = this.attacks["Neutral_A"]()
-        }
-      }
-      if(keys[keybinds.B_Attack]){
-        if(keys[keybinds.Right] && this.cooldowns.Side_B <= 0){
-          this.cooldowns.Side_B = this.attacks["Side_B"]("Right")
-        }
-        else if(keys[keybinds.Left] && this.cooldowns.Side_B <= 0){
-          this.cooldowns.Side_B = this.attacks["Side_B"]("Left")
-        }
-        else if(keys[keybinds.Jump] && this.cooldowns.Up_B <= 0){
-          this.cooldowns.Up_B = this.attacks["Up_B"]()
-        }
-        else if(keys[keybinds.Shield] && this.cooldowns.Down_B <= 0){
-          this.cooldowns.Down_B = this.attacks["Down_B"](this.color, this)
-        }
-        else if( this.cooldowns.Neutral_B <= 0) {
-          this.cooldowns.Neutral_B = this.attacks["Neutral_B"]()
-        }
-      }
-    }
+    this.handleVelocity()
+    if(this.dead || this.stunFrames > 0) return
     
+    if(this.isAttacking == false){
+      let keybinds = userKeys[this.playerIndex]
+      this.handleInputMovement(keybinds)
+      this.handleInputs(keybinds)
+    }
+
+    this.determineAndUpdateSprite()
+  
+    // take damage ~ Need to update; will later
+    /*
     for(var i=0;i<entities.length;i++){
-        let enemy = entities[i]
+      let enemy = entities[i]
       if(enemy.color == this.color){continue}
       
       let atk = this.isAttacking && this.framesCurrent === 2
@@ -390,21 +352,23 @@ class Fighter extends Sprite {
         this.isAttacking = false
       }
     }
-    
-      if (this.velocity.y < 0) {
-      this.switchSprite('jump')
-    } else if (this.velocity.y > 0) {
-      this.switchSprite('fall')
-    }
-    
-    if (this.isAttacking && this.framesCurrent === 2) {
-      this.isAttacking = false
-    }
+    */
     
   }
 
-    drawPercent(){
-      let emblem = [
+  handleVelocity(){
+    let drag = this.isAttacking ? 0 : .5
+    let velX = this.velocity.x
+    if(velX != 0){
+      this.velocity.x += velX > 0 ? -drag : drag
+    }
+    let round = 10
+    this.velocity.x = Math.floor(this.velocity.x*round)/round
+    this.velocity.y = Math.floor(this.velocity.y*round)/round
+  }
+
+  drawPercent(){
+    let emblem = [
         "black", "black", 	 "black", 		"black", 		"black",		 "black",    "black",
       "black", this.color, this.color,  this.color, this.color,  this.color, "black",
       "white", "black",    this.color,  this.color, this.color,  "black",		 "white",
@@ -417,39 +381,36 @@ class Fighter extends Sprite {
     let y1 = this.position.y-10
     let pSize = 2.5
     for(let i=1;i<emblem.length+1;i++){
-        if(emblem[i-1]=="white"){emblem[i-1]="rgba(0,0,0,0)"}
-        c.fillStyle = emblem[i-1]
+      if(emblem[i-1]=="white") emblem[i-1]="rgba(0,0,0,0)"
+      c.fillStyle = emblem[i-1]
       c.fillRect(x1,y1, pSize,pSize)
       x1 += pSize
       if(i % 7 == 0){
-          y1 += pSize
+        y1 += pSize
         x1 -= (pSize*7)
       }
     }
     
-      c.fillStyle = this.color;
-      c.font = "16px PressStart2P";
+    c.fillStyle = this.color;
+    c.font = "16px PressStart2P";
     
     let percent = this.damage/300
     let move = (percent * 14) + 7
-      c.fillText(this.damage+"%",this.position.x+(this.width/4)-move,this.position.y-15);
+    c.fillText(this.damage+"%",this.position.x+(this.width/4)-move,this.position.y-15);
   }
 
   attack() {
-      if(this.isAttacking){return}
+    if(this.isAttacking){return}
     
-    this.switchSprite('attack1')
     this.isAttacking = true
   }
   
   jump(){
-      if(this.onGround){
-        this.velocity.y = -20 * canvasScale
-    }
+    if(this.onGround) this.velocity.y = -20 * canvasScale
   }
 
   takeHit(dmg, src) {
-      if(this.immunityFrames > 0){return}
+    if(this.immunityFrames > 0) return
     this.damage += dmg
     this.immunityFrames = 5
     
@@ -462,47 +423,134 @@ class Fighter extends Sprite {
         this.velocity.x -= (this.damage/dampen)
       this.velocity.y -= 3
     }
-
-    if (this.damage >= Infinity) {
-      this.switchSprite('death')
-    } else this.switchSprite('takeHit')
   }
 
-  switchSprite(sprite) {
-    if (this.image === this.sprites.death.image) {
-      if (this.framesCurrent === this.sprites.death.framesMax - 1)
-        this.dead = true
+  handleInputMovement(keybinds){
+    let hasMoved = false
+    let speed = 5 * canvasScale
+    
+    if (keys[keybinds.Left] && this.velocity.x > -speed) {
+      this.velocity.x += -speed
+      hasMoved = true
+      this.facingRight = false
+    }
+    if (keys[keybinds.Right] && this.velocity.x < speed ) {
+      this.velocity.x += speed
+      hasMoved = true
+      this.facingRight = true
+    }
+  }
+
+  handleInputs(keybinds){
+    let didAttack = false
+
+    if(keys[keybinds.Jump]){
+      this.jump()
+    }
+    if (keys[keybinds.Ultimate] && this.hasUltimate) {
+      this.hasUltimate = false
+      this.attacks["Ultimate"](this.color, this)
+
+      this.lastMove = "ultimate"
+      didAttack = true
+    }
+    if(keys[keybinds.A_Attack]){
+      if(keys[keybinds.Right] && this.onGround==true && this.cooldowns.Side_A <= 0){
+        this.cooldowns.Side_A = this.attacks["Side_A"]("Right")
+        this.lastMove = "side_a"
+        didAttack = true
+      }
+      else if(keys[keybinds.Left] && this.onGround==true && this.cooldowns.Side_A <= 0){
+        this.cooldowns.Side_A = this.attacks["Side_A"]("Left")
+        this.lastMove = "side_a"
+        didAttack = true
+      }
+      else if(keys[keybinds.Right] && this.onGround==false && this.cooldowns.RightSide_A_air <= 0){
+        this.cooldowns.RightSide_A_air = this.attacks["RightSide_A_air"]()
+        this.lastMove = "RightSide_A_air"
+        didAttack = true
+      }
+      else if(keys[keybinds.Left] && this.onGround==false && this.cooldowns.LeftSide_A_air <= 0){
+        this.cooldowns.LeftSide_A_air = this.attacks["LeftSide_A_air"]()
+        this.lastMove = "LeftSide_A_air"
+        didAttack = true
+      }
+      else if(keys[keybinds.Jump] && this.cooldowns.Up_A <= 0){
+        this.cooldowns.Up_A = this.attacks["Up_A"](this.color, this)
+        this.lastMove = "up_a"
+        didAttack = true
+      }
+      else if(keys[keybinds.Shield] && this.cooldowns.Down_A <= 0){
+        this.cooldowns.Down_A = this.attacks["Down_A"]()
+        this.lastMove = "down_a"
+        didAttack = true
+      }
+      else if(this.cooldowns.Neutral_A <= 0){
+        this.cooldowns.Neutral_A = this.attacks["Neutral_A"]()
+        this.lastMove = "neutral_a"
+        didAttack = true
+      }
+    }
+    if(keys[keybinds.B_Attack]){
+      if(keys[keybinds.Right] && this.cooldowns.Side_B <= 0){
+        this.cooldowns.Side_B = this.attacks["Side_B"]("Right")
+        this.lastMove = "side_b"
+        didAttack = true
+      }
+      else if(keys[keybinds.Left] && this.cooldowns.Side_B <= 0){
+        this.cooldowns.Side_B = this.attacks["Side_B"]("Left")
+        this.lastMove = "side_b"
+        didAttack = true
+      }
+      else if(keys[keybinds.Jump] && this.cooldowns.Up_B <= 0){
+        this.cooldowns.Up_B = this.attacks["Up_B"]()
+        this.lastMove = "up_b"
+        didAttack = true
+      }
+      else if(keys[keybinds.Shield] && this.cooldowns.Down_B <= 0){
+        this.cooldowns.Down_B = this.attacks["Down_B"](this.color, this)
+        this.lastMove = "down_b"
+        didAttack = true
+      }
+      else if( this.cooldowns.Neutral_B <= 0) {
+        this.cooldowns.Neutral_B = this.attacks["Neutral_B"]()
+        this.lastMove = "neutral_b"
+        didAttack = true
+      }
+    }
+
+    if(didAttack == false) return
+    this.isAttacking = true
+    setTimeout(()=>{this.isAttacking=false}, 100)
+  }
+
+  determineAndUpdateSprite(){
+    let attacking = this.isAttacking
+    let facing = this.facingRight ? "right" : "left"
+    let maxFramesFacing = this.facingRight ? "framesMaxRight" : "framesMaxLeft"
+    let lastMove = this.lastMove
+
+    if(this.dead) return this.setSprite(this.sprites['death'][facing], this.sprites['death'][maxFramesFacing])
+    
+    if(attacking == false){
+      if(this.velocity.y != 0){ this.setSprite(this.sprites['jump'][facing], this.sprites['jump'][maxFramesFacing]) }
+      else if(this.velocity.x != 0){ this.setSprite(this.sprites['walk'][facing], this.sprites['walk'][maxFramesFacing]) }
+      else{ this.setSprite(this.sprites['idle'][facing], this.sprites['idle'][maxFramesFacing]) }
       return
     }
 
-    // overriding all other animations with the attack animation
-    if (
-      this.image === this.sprites.attack1.image &&
-      this.framesCurrent < this.sprites.attack1.framesMax - 1
-    )
-      return
+    this.setSprite(this.sprites[this.lastMove][facing], this.sprites[this.lastMove][maxFramesFacing])
 
-    // override when fighter gets hit
-    if (
-      this.image === this.sprites.takeHit.image &&
-      this.framesCurrent < this.sprites.takeHit.framesMax - 1
-    )
-      return
-    
-      
-      if( this.image !== this.sprites[sprite].image ){
-      this.image				 = this.sprites[sprite].image
-      this.framesMax		 = this.sprites[sprite].framesMax
-      this.framesCurrent = 0
-      
-      if( this.sprites[sprite].scale != null ){
-          this.scale = this.sprites[sprite].scale
-      }
-      if(this.sprites[sprite].offset != null){
-          this.offset = this.sprites[sprite].offset
-      }
-    }
-    
-    
+    // display the proper sprite
+    // find this out, either attacking, jump, moving, idle
   }
+
+  setSprite(spriteImage, maxFrames){
+    if(this.image == spriteImage) return
+
+    this.image = spriteImage
+    this.framesMax = maxFrames
+    this.framesCurrent = 0
+  }
+
 }

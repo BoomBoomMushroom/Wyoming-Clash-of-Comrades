@@ -77,50 +77,148 @@ var turrets = []
 
 let characterBuilds = {
 	"Colin": {
-    "Neutral_B": ()=>{},
-    "Side_B": ()=>{},
-    "Up_B": ()=>{},
+    "Neutral_B": (color,user)=>{},
+    "Side_B": (color,user)=>{},
+    "Up_B": (color,user)=>{},
     "Down_B": (summonerColor, user)=>{},
 
-    "Neutral_A": ()=>{},
-    "Side_A": ()=>{},
-    "LeftSide_A_air": ()=>{},
-    "RightSide_A_air": ()=>{},
-    "Down_A": ()=>{},
+    "Neutral_A": (color,user)=>{},
+    "Side_A": (color,user)=>{},
+    "LeftSide_A_air": (color,user)=>{},
+    "RightSide_A_air": (color,user)=>{},
+    "Down_A": (color,user)=>{},
     "Up_A": (color,user)=>{},
 
     "Ultimate": (color, user)=>{binaryRain(10, 3, color)},
   },
   "Dillion": {
-    "Neutral_B": ()=>{},
-    "Side_B": ()=>{},
-    "Up_B": ()=>{},
+    "Neutral_B": (color,user)=>{},
+    "Side_B": (color,user)=>{},
+    "Up_B": (color,user)=>{},
     "Down_B": (summonerColor, user)=>{spawnTurret(summonerColor, user)},
 
-    "Neutral_A": ()=>{},
-    "Side_A": ()=>{},
-    "LeftSide_A_air": ()=>{},
-    "RightSide_A_air": ()=>{},
-    "Down_A": ()=>{},
-    "Up_A": (color,user)=>{dillionUpA(color, user)},
+    "Neutral_A": (color,user)=>{},
+    "Side_A": (color,user)=>{},
+    "LeftSide_A_air": (color,user)=>{},
+    "RightSide_A_air": (color,user)=>{},
+    "Down_A": (color,user)=>{},
+    "Up_A": (color,user)=>{dillionUpA_DestroyTurrets(color, user)},
 
     "Ultimate": (color, user)=>{spawnBlackhole(color, user)},
   },
   "Jackson": {
-    "Neutral_B": ()=>{},
-    "Side_B": ()=>{},
-    "Up_B": ()=>{},
+    "Neutral_B": (color,user)=>{},
+    "Side_B": (color,user)=>{},
+    "Up_B": (color,user)=>{},
     "Down_B": (summonerColor, user)=>{},
 
-    "Neutral_A": ()=>{},
-    "Side_A": ()=>{},
-    "LeftSide_A_air": ()=>{},
-    "RightSide_A_air": ()=>{},
-    "Down_A": ()=>{},
+    "Neutral_A": (color,user)=>{},
+    "Side_A": (color,user)=>{},
+    "LeftSide_A_air": (color,user)=>{},
+    "RightSide_A_air": (color,user)=>{},
+    "Down_A": (color,user)=>{},
     "Up_A": (color,user)=>{},
 
     "Ultimate": (color, user)=>{},
   },
+}
+
+var dillionSprites = {
+  death: {
+    left: "./sprites/characters/dillion/dillion_dead_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_dead_right.png",
+    framesMaxRight: 1,
+  },
+  idle: {
+    left: "./sprites/characters/dillion/dillion_idle_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_idle_right.png",
+    framesMaxRight: 1,
+  },
+  jump: {
+    left: "./sprites/characters/dillion/dillion_jump_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_jump_right.png",
+    framesMaxRight: 1,
+  },
+  walk: {
+    left: "./sprites/characters/dillion/dillion_walk_left.png",
+    framesMaxLeft: 2,
+    right: "./sprites/characters/dillion/dillion_walk_right.png",
+    framesMaxRight: 2,
+  },
+
+
+  neutral_b: {
+    left: "./sprites/characters/dillion/dillion_neutral_a_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_neutral_a_right.png",
+    framesMaxRight: 1,
+  },
+  side_b: {
+    left: "./sprites/characters/dillion/dillion_side_b_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_side_b_right.png",
+    framesMaxRight: 1,
+  },
+  up_b: {
+    left: "./sprites/characters/dillion/dillion_up_b_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_up_b_right.png",
+    framesMaxRight: 1,
+  },
+  down_b: {
+    left: "./sprites/characters/dillion/dillion_down_b_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_down_b_right.png",
+    framesMaxRight: 1,
+  },
+
+
+  neutral_a: {
+    left: "./sprites/characters/dillion/dillion_neutral_a_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_neutral_a_right.png",
+    framesMaxRight: 1,
+  },
+  side_a: {
+    left: "./sprites/characters/dillion/dillion_side_a_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_side_a_right.png",
+    framesMaxRight: 1,
+  },
+  LeftSide_A_air: {
+    left: "./sprites/characters/dillion/dillion_side_a_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_side_a_right.png",
+    framesMaxRight: 1,
+  },
+  RightSide_A_air: {
+    left: "./sprites/characters/dillion/dillion_side_a_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_side_a_right.png",
+    framesMaxRight: 1,
+  },
+  down_a: {
+    left: "./sprites/characters/dillion/dillion_down_a_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_down_a_right.png",
+    framesMaxRight: 1,
+  },
+  up_a: {
+    left: "./sprites/characters/dillion/dillion_up_a_left.png",
+    framesMaxLeft: 1,
+    right: "./sprites/characters/dillion/dillion_up_a_right.png",
+    framesMaxRight: 1,
+  },
+  
+  ultimate: {
+    left: "./sprites/characters/dillion/dillion_ultimate.png",
+    framesMaxLeft: 5,
+    right: "./sprites/characters/dillion/dillion_ultimate.png",
+    framesMaxRight: 5,
+  }
 }
 
 const background = new Sprite({
@@ -135,10 +233,10 @@ sprites.push(background)
 
 const player = new Fighter({
 	playerIndex: 0,
-  characterName: "Colin",
+  characterName: "Dillion",
   color: 'red',
   facingRight: true,
-  attacks: characterBuilds["Colin"],
+  attacks: characterBuilds["Dillion"],
   
   position: {
     x: 0 * canvasScale,
@@ -150,41 +248,12 @@ const player = new Fighter({
   },
   imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/samuraiMack/Idle.png',
   framesMax: 8,
-  scale: canvasScale * 2.5,
+  scale: canvasScale * 0.25,
   offset: {
-    x: 215 * canvasScale,
-    y: 157 * canvasScale
+    x: 0 * canvasScale,
+    y: 0 * canvasScale
   },
-  sprites: {
-    idle: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/samuraiMack/Idle.png',
-      framesMax: 8
-    },
-    run: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/samuraiMack/Run.png',
-      framesMax: 8
-    },
-    jump: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/samuraiMack/Jump.png',
-      framesMax: 2
-    },
-    fall: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/samuraiMack/Fall.png',
-      framesMax: 2
-    },
-    attack1: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/samuraiMack/Attack1.png',
-      framesMax: 6
-    },
-    takeHit: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/samuraiMack/Take Hit - white silhouette.png',
-      framesMax: 4
-    },
-    death: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/samuraiMack/Death.png',
-      framesMax: 6
-    }
-  },
+  sprites: dillionSprites,
   attackBox: {
     offsetRight: {
       x: 100 * canvasScale,
@@ -199,6 +268,7 @@ const player = new Fighter({
   }
 })
 entities.push(player)
+
 
 const enemy = new Fighter({
 	playerIndex: 1,
@@ -217,83 +287,12 @@ const enemy = new Fighter({
   },
   imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Idle.png',
   framesMax: 4,
-  scale: canvasScale * 2.5,
+  scale: canvasScale * 0.25,
   offset: {
-    x: 215 * canvasScale,
-    y: 167 * canvasScale
+    x: 0 * canvasScale,
+    y: 0 * canvasScale
   },
-  sprites: {
-    idle: {
-      imageSrc: './sprites/characters/dillion/dillion_idle_left.png',
-      framesMax: 1,
-      
-      offset: {
-      	x: 0 * canvasScale,
-        y: -3 * canvasScale
-      },
-      scale: 0.15
-    },
-    run: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Run.png',
-      framesMax: 8,
-      
-      offset: {
-        x: 215 * canvasScale,
-        y: 167 * canvasScale
-      },
-      scale: canvasScale * 2.5
-    },
-    jump: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Jump.png',
-      framesMax: 2,
-      
-      offset: {
-        x: 215 * canvasScale,
-        y: 167 * canvasScale
-      },
-      scale: canvasScale * 2.5
-    },
-    fall: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Fall.png',
-      framesMax: 2,
-      
-      offset: {
-        x: 215 * canvasScale,
-        y: 167 * canvasScale
-      },
-      scale: canvasScale * 2.5
-    },
-    attack1: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Attack1.png',
-      framesMax: 4,
-      
-      offset: {
-        x: 215 * canvasScale,
-        y: 167 * canvasScale
-      },
-      scale: canvasScale * 2.5
-    },
-    takeHit: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Take hit.png',
-      framesMax: 3,
-      
-      offset: {
-        x: 215 * canvasScale,
-        y: 167 * canvasScale
-      },
-      scale: canvasScale * 2.5
-    },
-    death: {
-      imageSrc: 'https://raw.githubusercontent.com/chriscourses/fighting-game/main/img/kenji/Death.png',
-      framesMax: 7,
-      
-      offset: {
-        x: 215 * canvasScale,
-        y: 167 * canvasScale
-      },
-      scale: canvasScale * 2.5
-    }
-  },
+  sprites: dillionSprites,
   attackBox: {
     offsetRight: {
       x: 100 * canvasScale,
@@ -481,11 +480,12 @@ function updateKeys(){
 
 	for(var i=0;i<padsData.length;i++){
   	let data = padsData[i]
-    if(data == null){continue}
+    if(data == null) continue
     
     let index = i
 		let keybinds = userKeys[index]
     
+    //
     if(data.buttons.A){ keys[keybinds.A_Attack] = true }
     else{ keys[keybinds.A_Attack] = false }
     
@@ -516,12 +516,35 @@ function updateKeys(){
     }
     
     THRESHOLD = 0.8
-    if(data.axes.left[1] > THRESHOLD && keys[keybinds.Shield] == false){
-    	keys[keybinds.Shield] = true
-    }
-    else if(data.axes.left[1] < -THRESHOLD && keys[keybinds.Up] == false){
+    keys[keybinds.Shield] = (data.axes.left[1] > THRESHOLD && keys[keybinds.Shield] == false)
+    if(data.axes.left[1] < -THRESHOLD && keys[keybinds.Up] == false){
     	keys[keybinds.Up] = true
     }
+    //
+    
+    // for some reason this code is being wonky :/
+    // taken from commit: https://github.com/Circuitbreaker08/Wyoming-Clash-of-Comrades/commit/220a8e7122d9e2fcbc44dcbc9b56c53d38896dfe
+    // inside index.js
+    // don't touch this code i guess? ¯\_(ツ)_/¯
+
+    /*
+    keys[keybinds.A_Attack] = (data.buttons.A)
+    keys[keybinds.B_Attack] = (data.buttons.B)
+    keys[keybinds.Jump] = (data.buttons.X)
+    keys[keybinds.Ultimate] = (data.buttons.Y)
+    keys[keybinds.Left] = (data.buttons.Left)
+    keys[keybinds.Right] = (data.buttons.Right)
+    keys[keybinds.Pause] = (data.buttons.Select || data.buttons.Start || data.buttons.Home)
+    
+    let THRESHOLD = 0.3
+    keys[keybinds.Right] = (data.axes.left[0] > THRESHOLD && keys[keybinds.Right] == false)
+    keys[keybinds.Left] = (data.axes.left[0] < -THRESHOLD && keys[keybinds.Left] == false)
+    
+
+    THRESHOLD = 0.8
+    keys[keybinds.Shield] = (data.axes.left[1] > THRESHOLD && keys[keybinds.Shield] == false)
+    keys[keybinds.Up] = (data.axes.left[1] < -THRESHOLD && keys[keybinds.Up] == false)
+    */
   }
 }
 
