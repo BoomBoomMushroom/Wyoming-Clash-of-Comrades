@@ -67,7 +67,7 @@ function spawnTurret(summonerColor, user){
     // 1000 ~= 13sec
     // 5000 maybe 65sec
   })
-  return 30
+  return 7000
 }
 
 function dillionUpA_DestroyTurrets(color, user){
@@ -87,7 +87,7 @@ function dillionUpA_DestroyTurrets(color, user){
     turrets.splice(i, 1)
     i -= 1
   }
-  return 300
+  return 3500
 }
 
 function spawnBlackhole(summonerColor, user){  

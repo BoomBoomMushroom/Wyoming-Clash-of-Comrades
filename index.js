@@ -89,22 +89,22 @@ let characterBuilds = {
     "Down_A": (color,user)=>{},
     "Up_A": (color,user)=>{},
 
-    "Ultimate": (color, user)=>{binaryRain(10, 3, color)},
+    "Ultimate": (color, user)=>{return binaryRain(10, 3, color)},
   },
   "Dillion": {
     "Neutral_B": (color,user)=>{},
     "Side_B": (color,user)=>{},
     "Up_B": (color,user)=>{},
-    "Down_B": (summonerColor, user)=>{spawnTurret(summonerColor, user)},
+    "Down_B": (summonerColor, user)=>{return spawnTurret(summonerColor, user)},
 
     "Neutral_A": (color,user)=>{},
     "Side_A": (color,user)=>{},
     "LeftSide_A_air": (color,user)=>{},
     "RightSide_A_air": (color,user)=>{},
     "Down_A": (color,user)=>{},
-    "Up_A": (color,user)=>{dillionUpA_DestroyTurrets(color, user)},
+    "Up_A": (color,user)=>{return dillionUpA_DestroyTurrets(color, user)},
 
-    "Ultimate": (color, user)=>{spawnBlackhole(color, user)},
+    "Ultimate": (color, user)=>{return spawnBlackhole(color, user)},
   },
   "Jackson": {
     "Neutral_B": (color,user)=>{},
@@ -177,9 +177,9 @@ var dillionSprites = {
 
 
   neutral_a: {
-    left: "./sprites/characters/dillion/dillion_neutral_a_left.png",
+    left: "./sprites/characters/dillion/dillion_side_a_left.png",
     framesMaxLeft: 1,
-    right: "./sprites/characters/dillion/dillion_neutral_a_right.png",
+    right: "./sprites/characters/dillion/dillion_side_a_right.png",
     framesMaxRight: 1,
   },
   side_a: {
@@ -475,7 +475,7 @@ function animate() {
 animate()
 
 function updateKeys(){
-	if(window.gamepadsModule.activated==false){return}
+	if(window.gamepadsModule.activated==false) return
 	let padsData = window.gamepadsModule.gamepadsData
 
 	for(var i=0;i<padsData.length;i++){

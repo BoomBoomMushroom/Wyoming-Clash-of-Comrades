@@ -224,7 +224,7 @@ class Fighter extends Sprite {
       "Ultimate": 0,
     }
     
-    this.hasUltimate = false
+    this.ultimateCharge = false
     this.lastMove = ""
     /*
       last moves can be:
@@ -357,7 +357,7 @@ class Fighter extends Sprite {
   }
 
   handleVelocity(){
-    let drag = this.isAttacking ? 0 : .5
+    let drag = .5
     let velX = this.velocity.x
     if(velX != 0){
       this.velocity.x += velX > 0 ? -drag : drag
@@ -441,79 +441,86 @@ class Fighter extends Sprite {
     }
   }
 
+  setCooldown(attack, duration){
+    if(duration == undefined) duration = 400
+
+    console.log(duration, attack)
+    this.cooldowns[attack] = Infinity
+    setInterval(()=>{this.cooldowns[attack] = 0}, duration)
+  }
+
   handleInputs(keybinds){
     let didAttack = false
 
     if(keys[keybinds.Jump]){
       this.jump()
     }
-    if (keys[keybinds.Ultimate] && this.hasUltimate) {
-      this.hasUltimate = false
+    if (keys[keybinds.Ultimate] && this.ultimateCharge>=100) {
+      this.ultimateCharge = 0
       this.attacks["Ultimate"](this.color, this)
-
       this.lastMove = "ultimate"
       didAttack = true
     }
     if(keys[keybinds.A_Attack]){
       if(keys[keybinds.Right] && this.onGround==true && this.cooldowns.Side_A <= 0){
-        this.cooldowns.Side_A = this.attacks["Side_A"]("Right")
+        this.setCooldown("Side_A", this.attacks["Side_A"](this.color, this))
         this.lastMove = "side_a"
         didAttack = true
       }
       else if(keys[keybinds.Left] && this.onGround==true && this.cooldowns.Side_A <= 0){
-        this.cooldowns.Side_A = this.attacks["Side_A"]("Left")
+        this.setCooldown("Side_A", this.attacks["Side_A"](this.color, this))
         this.lastMove = "side_a"
         didAttack = true
       }
       else if(keys[keybinds.Right] && this.onGround==false && this.cooldowns.RightSide_A_air <= 0){
-        this.cooldowns.RightSide_A_air = this.attacks["RightSide_A_air"]()
+        this.setCooldown("RightSide_A_air", this.attacks["RightSide_A_air"](this.color, this))
         this.lastMove = "RightSide_A_air"
         didAttack = true
       }
       else if(keys[keybinds.Left] && this.onGround==false && this.cooldowns.LeftSide_A_air <= 0){
-        this.cooldowns.LeftSide_A_air = this.attacks["LeftSide_A_air"]()
+        this.setCooldown("LeftSide_A_air", this.attacks["LeftSide_A_air"](this.color, this))
         this.lastMove = "LeftSide_A_air"
         didAttack = true
       }
       else if(keys[keybinds.Jump] && this.cooldowns.Up_A <= 0){
-        this.cooldowns.Up_A = this.attacks["Up_A"](this.color, this)
+        this.setCooldown("Up_A", this.attacks["Up_A"](this.color, this))
         this.lastMove = "up_a"
         didAttack = true
       }
       else if(keys[keybinds.Shield] && this.cooldowns.Down_A <= 0){
-        this.cooldowns.Down_A = this.attacks["Down_A"]()
+        this.setCooldown("Down_A", this.attacks["Down_A"](this.color, this))
         this.lastMove = "down_a"
         didAttack = true
       }
       else if(this.cooldowns.Neutral_A <= 0){
-        this.cooldowns.Neutral_A = this.attacks["Neutral_A"]()
+        this.setCooldown("Neutral_A", this.attacks["Neutral_A"](this.color, this))
         this.lastMove = "neutral_a"
         didAttack = true
       }
     }
     if(keys[keybinds.B_Attack]){
       if(keys[keybinds.Right] && this.cooldowns.Side_B <= 0){
-        this.cooldowns.Side_B = this.attacks["Side_B"]("Right")
+        this.setCooldown("Side_B", this.attacks["Side_B"](this.color, this))
         this.lastMove = "side_b"
         didAttack = true
       }
       else if(keys[keybinds.Left] && this.cooldowns.Side_B <= 0){
-        this.cooldowns.Side_B = this.attacks["Side_B"]("Left")
+        this.setCooldown("Side_B", this.attacks["Side_B"](this.color, this))
         this.lastMove = "side_b"
         didAttack = true
       }
       else if(keys[keybinds.Jump] && this.cooldowns.Up_B <= 0){
-        this.cooldowns.Up_B = this.attacks["Up_B"]()
+        this.setCooldown("Up_B", this.attacks["Up_B"](this.color, this))
         this.lastMove = "up_b"
         didAttack = true
       }
       else if(keys[keybinds.Shield] && this.cooldowns.Down_B <= 0){
-        this.cooldowns.Down_B = this.attacks["Down_B"](this.color, this)
+        this.setCooldown("Down_B", this.attacks["Down_B"](this.color, this))
         this.lastMove = "down_b"
         didAttack = true
       }
       else if( this.cooldowns.Neutral_B <= 0) {
-        this.cooldowns.Neutral_B = this.attacks["Neutral_B"]()
+        this.setCooldown("Neutral_B", this.attacks["Neutral_B"](this.color, this))
         this.lastMove = "neutral_b"
         didAttack = true
       }
@@ -528,8 +535,7 @@ class Fighter extends Sprite {
     let attacking = this.isAttacking
     let facing = this.facingRight ? "right" : "left"
     let maxFramesFacing = this.facingRight ? "framesMaxRight" : "framesMaxLeft"
-    let lastMove = this.lastMove
-
+    
     if(this.dead) return this.setSprite(this.sprites['death'][facing], this.sprites['death'][maxFramesFacing])
     
     if(attacking == false){
