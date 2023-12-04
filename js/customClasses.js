@@ -263,7 +263,7 @@ class Fighter extends Sprite {
     }
   }
 
-  update() {
+  update(deltaTimeMS) {
     this.draw()
     this.drawPercent()
     if (!this.dead){
@@ -273,7 +273,8 @@ class Fighter extends Sprite {
       
       let attkCooldownKeys = Object.keys(this.cooldowns)
       for(let i=0;i<attkCooldownKeys.length;i++){
-        this.cooldowns[attkCooldownKeys[i]] -= 1
+        //this.cooldowns[attkCooldownKeys[i]] -= 1
+        this.cooldowns[attkCooldownKeys[i]] -= deltaTimeMS
         if(isNaN(this.cooldowns[attkCooldownKeys[i]])) this.cooldowns[attkCooldownKeys[i]] = 0
       }
     }
@@ -444,9 +445,10 @@ class Fighter extends Sprite {
   setCooldown(attack, duration){
     if(duration == undefined) duration = 400
 
-    console.log(duration, attack)
-    this.cooldowns[attack] = Infinity
-    setInterval(()=>{this.cooldowns[attack] = 0}, duration)
+    //console.log(duration, attack)
+    this.cooldowns[attack] = duration
+    //this.cooldowns[attack] = Infinity
+    //setInterval(()=>{this.cooldowns[attack] = 0}, duration)
   }
 
   handleInputs(keybinds){

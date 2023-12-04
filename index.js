@@ -310,9 +310,18 @@ entities.push(enemy)
 
 const keys = {}
 
+var lastFrameNow = 0
+var fpsCounter = document.getElementById("fpsCounter")
+
 function animate() {
   window.requestAnimationFrame(animate)
   
+  performanceNow = performance.now()
+  deltaTimeMS = performanceNow-lastFrameNow
+  lastFrameNow = performanceNow + 0
+  FPS = 1000 / deltaTimeMS
+  fpsCounter.innerText = Math.round(FPS)
+
   for(var i=0;i<sprites.length;i++){
   	var sprite = sprites[i]
     sprite.update()
@@ -394,7 +403,7 @@ function animate() {
   
 	for(var i=0;i<entities.length;i++){
   	let entity = entities[i]
-    entity.update()
+    entity.update(deltaTimeMS)
     entity.gameLoopUpdates()
     
     
