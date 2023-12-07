@@ -221,6 +221,16 @@ var dillionSprites = {
   }
 }
 
+// 50 pixel margin
+const outOfBoundsHitbox = {
+  "position": {
+    "x": -50,
+    "y": -50,
+  },
+  "width": canvas.width + (50*2),
+  "height": canvas.height + (50*2),
+}
+
 const background = new Sprite({
   position: {
     x: 0 * canvasScale,
@@ -404,8 +414,10 @@ function animate() {
 	for(var i=0;i<entities.length;i++){
   	let entity = entities[i]
     entity.update(deltaTimeMS)
-    entity.gameLoopUpdates()
+    entity.gameLoopUpdates(entities)
     
+    let inBounds = entities[i].hitBoxCollision(outOfBoundsHitbox, entities[i])
+    if(inBounds == false) entities[i].outOfBoundsDeath()
     
     for(var j=0;j<damageSprites.length;j++){
     	let atkBox = {attackBox: damageSprites[j].entity}

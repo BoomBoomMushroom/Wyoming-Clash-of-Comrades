@@ -71,14 +71,24 @@ function spawnTurret(summonerColor, user){
 }
 
 function dillionUpA_DestroyTurrets(color, user){
+  // Check we we have a turret
+  let turretCount = 0
+  for(var i=0;i<turrets.length;i++){
+    if(turrets[i] == null){ continue }
+    if(turrets[i].summoner != user){ continue }
+    turretCount++
+  }
+  if(turretCount <= 0) return
+  
   // Destroy all your turrets
 	explosionCreate(color, {
   	x: user.position.x - (user.width/2),
     y: user.position.y - (user.height/2)
   })
+  
   for(var i=0;i<turrets.length;i++){
   	if(turrets[i] == null){ continue }
-		if(turrets[i].summoner != user){ return }
+		if(turrets[i].summoner != user){ continue }
   	let pos = {
     	x: turrets[i].entity.position.x - (turrets[i].entity.width/2),
       y: turrets[i].entity.position.y - (turrets[i].entity.height/2)

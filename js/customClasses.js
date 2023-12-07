@@ -183,6 +183,7 @@ class Fighter extends Sprite {
     this.velocity = velocity
     this.width = 50
     this.height = 90
+    /* Attack Box - if I need it later?
     this.attackBox = {
       position: {
         x: this.position.x,
@@ -193,8 +194,10 @@ class Fighter extends Sprite {
       width: attackBox.width,
       height: attackBox.height
     }
+    */
     this.color = color
     this.isAttacking = false
+    this.attackRunTime = 0
     this.framesCurrent = 0
     this.framesElapsed = 0
     this.framesHold = 5
@@ -271,6 +274,9 @@ class Fighter extends Sprite {
       this.immunityFrames -= 1
       this.stunFrames -= 1
       
+      this.attackRunTime -= deltaTimeMS
+      this.isAttacking = this.attackRunTime > 0
+
       let attkCooldownKeys = Object.keys(this.cooldowns)
       for(let i=0;i<attkCooldownKeys.length;i++){
         //this.cooldowns[attkCooldownKeys[i]] -= 1
@@ -279,56 +285,74 @@ class Fighter extends Sprite {
       }
     }
 
-    // attack boxes
-    if(this.facingRight){
-      this.attackBox.position.x = this.position.x + this.attackBox.offsetRight.x
-      this.attackBox.position.y = this.position.y + this.attackBox.offsetRight.y
-    }
-    else{
-      this.attackBox.position.x = this.position.x + this.attackBox.offsetLeft.x
-      this.attackBox.position.y = this.position.y + this.attackBox.offsetLeft.y
-    }
-
-    if(debug){
-      // draw the attack box
-      c.fillStyle = 'rgba(255, 255, 255, 0.15)'
-      if(rectangularCollision({rectangle1: player,rectangle2: enemy})){
-        c.fillStyle = 'rgba(255, 0, 0, 0.15)'
-      }
-      c.fillRect(
-        this.attackBox.position.x,
-        this.attackBox.position.y,
-        this.attackBox.width,
-        this.attackBox.height
-      )
-      
-      // draw player's hitbox
-      c.fillStyle = 'rgba(0, 255, 0, 0.15)'
-      
-      c.beginPath();
-      c.moveTo(this.position.x, this.position.y);
-      c.lineTo(this.position.x + this.width, this.position.y);
-      c.lineTo(this.position.x + this.width, this.position.y+this.height);
-      c.lineTo(this.position.x, this.position.y+this.height);
-      c.lineTo(this.position.x, this.position.y);
-      c.stroke();
-    }
 
     this.position.x += this.velocity.x
     this.position.y += this.velocity.y
     
+    // This threshold won't allow players to fly out of the world
+    // unless their are damaged beyond this threshold
+    const damageThreshhold = 110
+
+    if(this.damage <= damageThreshhold){
+      
+      if(this.position.y < 0){ this.velocity.y *= -1 }
+      if(this.position.x < 0){
+        this.velocity.x = Math.abs(this.velocity.x)
+        if(this.velocity.x <= 0) this.velocity.x = 10
+      }
+
+      if(this.position.x > canvas.width-this.width){
+        this.velocity.x = -1 * Math.abs(this.velocity.x)
+        if(this.velocity.x <= 0) this.velocity.x = -10
+      }
+    }
+
     // gravity function
     if (this.position.y + (this.height) + this.velocity.y >= floor) {
       this.velocity.y = 0
       this.position.y = floor - (this.height)
       this.onGround = true
     } else{
-        this.velocity.y += gravity
-      this.onGround = false
+      this.velocity.y += gravity
+      // let's only set this to false when we do jump
+      //this.onGround = false
     }
+
+
+    // Only debug from here and on!
+    if(debug == false) return
+    
+    // draw the attack box
+
+    let [ hitbox, hitboxUp, hitboxDown, hitboxLeft, hitboxRight ] = this.generateHitBoxes()
+
+    let bodyHitBoxColor = this.isAttacking
+      ? 'rgba(255, 0, 0, 0.5)'
+      : 'rgba(255, 255, 255, 0.15)'
+
+    this.drawHitbox(hitbox, bodyHitBoxColor)
+    this.drawHitbox(hitboxUp, 'rgba(0, 255, 0, 0.15)')
+    this.drawHitbox(hitboxDown, 'rgba(255, 255, 0, 0.15)')
+    this.drawHitbox(hitboxLeft, 'rgba(255, 0, 0, 0.15)')
+    this.drawHitbox(hitboxRight, 'rgba(0, 0, 255, 0.15)')
+
+    /* Old Hitbox Drawing method
+    this.drawHitbox(this.attackBox, 'rgba(255, 255, 255, 0.15)')
+    */
+    
+    // draw player's hitbox
+    c.fillStyle = 'rgba(0, 255, 0, 0.15)'
+    
+    c.beginPath();
+    c.moveTo(this.position.x, this.position.y);
+    c.lineTo(this.position.x + this.width, this.position.y);
+    c.lineTo(this.position.x + this.width, this.position.y+this.height);
+    c.lineTo(this.position.x, this.position.y+this.height);
+    c.lineTo(this.position.x, this.position.y);
+    c.stroke();
   }
 
-  gameLoopUpdates(){
+  gameLoopUpdates(entities){
 
     this.handleVelocity()
     if(this.dead || this.stunFrames > 0) return
@@ -337,6 +361,9 @@ class Fighter extends Sprite {
       let keybinds = userKeys[this.playerIndex]
       this.handleInputMovement(keybinds)
       this.handleInputs(keybinds)
+    }
+    else{
+      this.handleAttack(entities)
     }
 
     this.determineAndUpdateSprite()
@@ -400,6 +427,112 @@ class Fighter extends Sprite {
     c.fillText(this.damage+"%",this.position.x+(this.width/4)-move,this.position.y-15);
   }
 
+  drawHitbox(hitboxData, color) {
+    c.fillStyle = color
+    /*
+    if(rectangularCollision({rectangle1: player,rectangle2: enemy})){
+      c.fillStyle = 'rgba(255, 0, 0, 0.15)'
+    }
+    */
+    c.fillRect(
+      hitboxData.position.x,
+      hitboxData.position.y,
+      hitboxData.width,
+      hitboxData.height
+    )
+  }
+
+  generateHitBoxes() {
+    let hitbox = {
+      "position": {
+        "x": this.position.x,
+        "y": this.position.y,
+      },
+      "width": this.width,
+      "height": this.height,
+    }
+    let hitboxUp = {
+      "position": {
+        "x": this.position.x,
+        "y": this.position.y - this.height,
+      },
+      "width": this.width,
+      "height": this.height,
+    }
+    let hitboxDown = {
+      "position": {
+        "x": this.position.x,
+        "y": this.position.y + this.height,
+      },
+      "width": this.width,
+      "height": this.height,
+    }
+    let hitboxLeft = {
+      "position": {
+        "x": this.position.x - this.width,
+        "y": this.position.y,
+      },
+      "width": this.width,
+      "height": this.height,
+    }
+    let hitboxRight = {
+      "position": {
+        "x": this.position.x + this.width,
+        "y": this.position.y,
+      },
+      "width": this.width,
+      "height": this.height,
+    }
+
+    return [hitbox, hitboxUp, hitboxDown, hitboxLeft, hitboxRight]
+  }
+
+  getAttackHitbox() {
+    let underscoreSplit = this.lastMove.split("_")
+
+    let [ hitbox, hitboxUp, hitboxDown, hitboxLeft, hitboxRight ] = this.generateHitBoxes()
+
+    if(underscoreSplit[0] == "neutral" || underscoreSplit[0] == "side"){
+      return this.facingRight ? hitboxRight : hitboxLeft
+    }
+    else if(underscoreSplit[0] == "up" || underscoreSplit[0] == "down"){
+      return underscoreSplit[0] == "up" ? hitboxUp : hitboxDown
+    }
+    else if(underscoreSplit[0] == "LeftSide"){
+      return hitboxLeft
+    }
+    else if(underscoreSplit[0] == "RightSide"){
+      return hitboxRight
+    }
+    return null
+  }
+
+  hitBoxCollision(rect1, rect2) {
+    // mainly copied from `https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection`
+    return (
+      rect1.position.x < rect2.position.x + rect2.width &&
+      rect1.position.x + rect1.width      > rect2.position.x &&
+      rect1.position.y < rect2.position.y + rect2.height &&
+      rect1.position.y + rect1.height     > rect2.position.y
+    )
+  }
+
+  handleAttack(entities) {
+    if(this.isAttacking == false) return
+    let attackingHitbox = this.getAttackHitbox()
+
+    for(var i=0; i<entities.length; i++){
+      let entityHitbox = entities[i].generateHitBoxes()[0]
+      let collision = this.hitBoxCollision(attackingHitbox, entityHitbox)
+      if(collision == false) continue
+
+      entities[i].takeHit(1, this.position)
+      console.log(collision, "Collision!")
+    }
+
+    //console.log(attackDirection)
+  }
+
   attack() {
     if(this.isAttacking){return}
     
@@ -407,7 +540,17 @@ class Fighter extends Sprite {
   }
   
   jump(){
-    if(this.onGround) this.velocity.y = -20 * canvasScale
+    if(this.onGround == false) return
+    this.velocity.y = -20 * canvasScale
+    this.onGround = false
+  }
+
+  outOfBoundsDeath() {
+    if(this.dead) return
+    this.dead = true
+
+    
+    console.log("I am dead")
   }
 
   takeHit(dmg, src) {
@@ -417,11 +560,11 @@ class Fighter extends Sprite {
     
     let dampen = 4.25
     if(this.position.x > src.x){
-        this.velocity.x += (this.damage/dampen)
+      this.velocity.x += (this.damage/dampen)
       this.velocity.y -= 3
     }
     else{
-        this.velocity.x -= (this.damage/dampen)
+      this.velocity.x -= (this.damage/dampen)
       this.velocity.y -= 3
     }
   }
@@ -530,7 +673,7 @@ class Fighter extends Sprite {
 
     if(didAttack == false) return
     this.isAttacking = true
-    setTimeout(()=>{this.isAttacking=false}, 100)
+    this.attackRunTime = 100
   }
 
   determineAndUpdateSprite(){
