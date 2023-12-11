@@ -2,21 +2,23 @@ Notes for the Wyoming Clash of Comrades game
 
 Key:
     ~ means to come back and rethink
+    > mean it is finished
+    >> means it is finished because it is a default move
 
 Dillion Attacks and Notes
 * A Attacks
-    - Neutral   - 
-    - Side      - Punch in facing direction (short range)
-    - Side Air  - Dash in facing direction (short range)
-    - Down      - Pound downwards, damages (short range)
-    - Up        - Destroys ALL placed turrets (inf range)
+    - Neutral   - (Same as side ground) 
+    - Side      >> Punch in facing direction (short range)
+    - Side Air  > Dash in facing direction (short range)
+    - Down      > Pound downwards, damages (short range)
+    - Up        > Destroys ALL placed turrets (inf range)
 * B Attacks
-    - Neutral   - 
-    - Side      - Grapple in facing direction and pull enemy (medium range)
-    - Up        - Dashes upwards, for recovery
-    - Down      - Spawn turret on top of you
+    - Neutral   >> (same as Neutral A)
+    - Side      > Grapple in facing direction and pull enemy (medium range)
+    - Up        > Dashes upwards, for recovery
+    - Down      > Spawn turret on top of you
 * Ultimate
-    - Spawn Black Hole on current position
+    > Spawn Black Hole on current position
 
 
 

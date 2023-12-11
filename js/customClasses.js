@@ -228,7 +228,7 @@ class Fighter extends Sprite {
     }
     
     this.ultimateCharge = false
-    this.lastMove = ""
+    this.lastMove = ""    
     /*
       last moves can be:
       neutral_b
@@ -244,6 +244,12 @@ class Fighter extends Sprite {
       up_a
 
       ultimate
+    */
+
+    /*
+    Short range is 1
+    Mid range is 1.5
+    Long range is 2
     */
 
     for (const sprite in this.sprites) {
@@ -267,6 +273,8 @@ class Fighter extends Sprite {
   }
 
   update(deltaTimeMS) {
+    if(this.dead) return
+
     this.draw()
     this.drawPercent()
     if (!this.dead){
@@ -322,9 +330,11 @@ class Fighter extends Sprite {
     // Only debug from here and on!
     if(debug == false) return
     
+    //this.rotationDegrees = this.damage
+
     // draw the attack box
 
-    let [ hitbox, hitboxUp, hitboxDown, hitboxLeft, hitboxRight ] = this.generateHitBoxes()
+    let [ hitbox, hitboxUp, hitboxDown, hitboxLeft, hitboxRight ] = this.generateHitBoxes(1)
 
     let bodyHitBoxColor = this.isAttacking
       ? 'rgba(255, 0, 0, 0.5)'
@@ -367,20 +377,6 @@ class Fighter extends Sprite {
     }
 
     this.determineAndUpdateSprite()
-  
-    // take damage ~ Need to update; will later
-    /*
-    for(var i=0;i<entities.length;i++){
-      let enemy = entities[i]
-      if(enemy.color == this.color){continue}
-      
-      let atk = this.isAttacking && this.framesCurrent === 2
-      if (rectangularCollision({rectangle1: this, rectangle2: enemy}) && atk) {
-        enemy.takeHit(3, this.position)
-        this.isAttacking = false
-      }
-    }
-    */
     
   }
 
@@ -442,7 +438,9 @@ class Fighter extends Sprite {
     )
   }
 
-  generateHitBoxes() {
+  generateHitBoxes(range) {
+    if(range == null) range = 1
+
     let hitbox = {
       "position": {
         "x": this.position.x,
@@ -454,10 +452,10 @@ class Fighter extends Sprite {
     let hitboxUp = {
       "position": {
         "x": this.position.x,
-        "y": this.position.y - this.height,
+        "y": this.position.y - (this.height * range),
       },
       "width": this.width,
-      "height": this.height,
+      "height": this.height * range,
     }
     let hitboxDown = {
       "position": {
@@ -465,14 +463,14 @@ class Fighter extends Sprite {
         "y": this.position.y + this.height,
       },
       "width": this.width,
-      "height": this.height,
+      "height": this.height * range,
     }
     let hitboxLeft = {
       "position": {
-        "x": this.position.x - this.width,
+        "x": this.position.x - (this.width * range),
         "y": this.position.y,
       },
-      "width": this.width,
+      "width": this.width * range,
       "height": this.height,
     }
     let hitboxRight = {
@@ -480,17 +478,19 @@ class Fighter extends Sprite {
         "x": this.position.x + this.width,
         "y": this.position.y,
       },
-      "width": this.width,
+      "width": this.width * range,
       "height": this.height,
     }
 
     return [hitbox, hitboxUp, hitboxDown, hitboxLeft, hitboxRight]
   }
 
-  getAttackHitbox() {
+  getAttackHitbox(range) {
+    if(range == null){range = 1}
+
     let underscoreSplit = this.lastMove.split("_")
 
-    let [ hitbox, hitboxUp, hitboxDown, hitboxLeft, hitboxRight ] = this.generateHitBoxes()
+    let [ hitbox, hitboxUp, hitboxDown, hitboxLeft, hitboxRight ] = this.generateHitBoxes(range)
 
     if(underscoreSplit[0] == "neutral" || underscoreSplit[0] == "side"){
       return this.facingRight ? hitboxRight : hitboxLeft
@@ -519,7 +519,7 @@ class Fighter extends Sprite {
 
   handleAttack(entities) {
     if(this.isAttacking == false) return
-    let attackingHitbox = this.getAttackHitbox()
+    let attackingHitbox = this.getAttackHitbox(1)
 
     for(var i=0; i<entities.length; i++){
       let entityHitbox = entities[i].generateHitBoxes()[0]
@@ -545,12 +545,53 @@ class Fighter extends Sprite {
     this.onGround = false
   }
 
-  outOfBoundsDeath() {
+  deathAnimation() {
     if(this.dead) return
-    this.dead = true
 
-    
+    let position = {
+      x: canvasCenter.x - 40,
+      y: canvas.height * 0.1,
+    }
+
+    let plrSprite = new Sprite({
+      position: position,
+      imageSrc: this.image.src,
+      scale: this.scale,
+      framesMax: this.maxFrames,
+      offset: this.offset,
+    })
+    sprites.push(plrSprite)
+
+    let xSprite = new Sprite({
+      position: position,
+      imageSrc: './sprites/general_sprites/x_elimination.png',
+      scale: canvasScale * 1,
+      framesMax: 30,
+      offset: {
+        "x": 15,
+        "y": -15
+      }
+    })
+    sprites.push(xSprite)
+
+    let clearingId = setInterval(()=>{
+      if(xSprite.framesCurrent != xSprite.framesMax-1) return
+      
+      let indexA = sprites.indexOf(xSprite)
+      let indexB = sprites.indexOf(plrSprite)
+      sprites.splice(indexA, 1)
+      sprites.splice(indexB, 1)
+
+      clearInterval(clearingId)
+    }, 1)
+
     console.log("I am dead")
+  }
+
+  killPlayer(reason){
+    this.deathAnimation()
+    this.dead = true
+    this.deathReason = reason
   }
 
   takeHit(dmg, src) {
@@ -585,13 +626,10 @@ class Fighter extends Sprite {
     }
   }
 
-  setCooldown(attack, duration){
-    if(duration == undefined) duration = 400
-
-    //console.log(duration, attack)
-    this.cooldowns[attack] = duration
-    //this.cooldowns[attack] = Infinity
-    //setInterval(()=>{this.cooldowns[attack] = 0}, duration)
+  setCooldown(attack, attackData){
+    if(attackData == null) attackData = 400
+    
+    this.cooldowns[attack] = attackData
   }
 
   handleInputs(keybinds){

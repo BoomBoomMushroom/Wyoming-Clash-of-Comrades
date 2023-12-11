@@ -70,6 +70,38 @@ function spawnTurret(summonerColor, user){
   return 7000
 }
 
+function dillionSideA_AirDash(color, user, facingRight){
+  user.velocity.x = 15 * (facingRight ? 1 : -1)
+  return 2000
+}
+
+function dillionDownA_GroundPound(color, user){
+  user.velocity.y = 15
+  return 2000
+}
+
+function dillionSideB_GrappleDirection(color, user){
+  let hitboxes = user.generateHitBoxes(3) // Mid Ranged attack
+  let hitboxIndex = user.facingRight ? 4 : 3
+  let hitbox = hitboxes[hitboxIndex]
+
+  for(let i=0;i<entities.length;i++){
+    let entityHitbox = entities[i].generateHitBoxes(1)[0]
+    if(user.hitBoxCollision(hitbox, entityHitbox) == false) continue
+    
+    let isRightOfPlayer = entities[i].position.x - user.position.x < 0
+    
+    entities[i].velocity.x = 10 * (isRightOfPlayer ? 1 : -1)
+  }
+
+  return 2000
+}
+
+function dillionUpB_RecoverUp(color, user){
+  user.velocity.y = -15
+  return 2000
+}
+
 function dillionUpA_DestroyTurrets(color, user){
   // Check we we have a turret
   let turretCount = 0

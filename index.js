@@ -6,6 +6,10 @@ const canvasScale = 0.6
 canvas.width = 1024 * canvasScale
 canvas.height = 576 * canvasScale
 var floor = canvas.height - (96 * canvasScale)
+const canvasCenter = {
+  "x": canvas.width/2,
+  "y": canvas.height/2,
+}
 
 var debug = true
 const userKeys = [
@@ -65,6 +69,22 @@ function closestEntity(point, colorExclude){
   return cIndex
 }
 
+function closestAliveEntity(point, colorExclude){
+	let cIndex = -1;
+	let dist = Infinity
+
+	for(var i=0;i<entities.length;i++){
+  	let entity = entities[i]
+    if(entity.dead == true) continue
+    if(colorExclude && entity.color == colorExclude){
+    	continue
+    }
+    let d = distance(point, entity.position)
+    if(d < dist){ cIndex = i; dist = d }
+  }
+  return cIndex
+}
+
 c.fillRect(0, 0, canvas.width, canvas.height)
 
 const gravity = 0.7 * canvasScale
@@ -93,15 +113,15 @@ let characterBuilds = {
   },
   "Dillion": {
     "Neutral_B": (color,user)=>{},
-    "Side_B": (color,user)=>{},
-    "Up_B": (color,user)=>{},
+    "Side_B": (color,user)=>{dillionSideB_GrappleDirection(color,user)},
+    "Up_B": (color,user)=>{return dillionUpB_RecoverUp(color, user)},
     "Down_B": (summonerColor, user)=>{return spawnTurret(summonerColor, user)},
 
     "Neutral_A": (color,user)=>{},
     "Side_A": (color,user)=>{},
-    "LeftSide_A_air": (color,user)=>{},
-    "RightSide_A_air": (color,user)=>{},
-    "Down_A": (color,user)=>{},
+    "LeftSide_A_air": (color,user)=>{return dillionSideA_AirDash(color, user, false)},
+    "RightSide_A_air": (color,user)=>{return dillionSideA_AirDash(color, user, true)},
+    "Down_A": (color,user)=>{return dillionDownA_GroundPound(color, user)},
     "Up_A": (color,user)=>{return dillionUpA_DestroyTurrets(color, user)},
 
     "Ultimate": (color, user)=>{return spawnBlackhole(color, user)},
@@ -323,6 +343,7 @@ const keys = {}
 var lastFrameNow = 0
 var fpsCounter = document.getElementById("fpsCounter")
 
+
 function animate() {
   window.requestAnimationFrame(animate)
   
@@ -343,11 +364,6 @@ function animate() {
     else{ turret.cooldown -= 1 }
     turret.life -= 1
     if(turret.life <= 0){ turrets.splice(i, 1) }
-    
-    let closestIndex = closestEntity(turret.entity.position, turret.color)
-    if(closestIndex == -1){ continue }
-    
-    let closest = entities[closestIndex]
     
     if(turret.entity.position.y+(turret.entity.height/3)+7 < floor){
     	turret.entity.position.y += gravity
@@ -371,6 +387,15 @@ function animate() {
       {x: -speedX, y: -speedY},
     ]
     
+    let closestIndex = closestAliveEntity(turret.entity.position, turret.color)
+    if(closestIndex == -1){
+      turrets[i].entity.image.src = turret.sprites[1]
+      turrets[i].entity.draw()
+      continue
+    }
+    
+    let closest = entities[closestIndex]
+
     let kIndex = 1
     if(closest.position.y > tEntity.position.y + (tEntity.height/2)){
     	kIndex = 0
@@ -417,7 +442,7 @@ function animate() {
     entity.gameLoopUpdates(entities)
     
     let inBounds = entities[i].hitBoxCollision(outOfBoundsHitbox, entities[i])
-    if(inBounds == false) entities[i].outOfBoundsDeath()
+    if(inBounds == false) entities[i].killPlayer("Out of bounds")
     
     for(var j=0;j<damageSprites.length;j++){
     	let atkBox = {attackBox: damageSprites[j].entity}
