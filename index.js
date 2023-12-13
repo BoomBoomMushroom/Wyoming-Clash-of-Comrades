@@ -109,7 +109,7 @@ let characterBuilds = {
     "Down_A": (color,user)=>{},
     "Up_A": (color,user)=>{},
 
-    "Ultimate": (color, user)=>{return binaryRain(10, 3, color)},
+    "Ultimate": (color, user)=>{return binaryRain(100, 3, color)},
   },
   "Dillion": {
     "Neutral_B": (color,user)=>{},
@@ -125,6 +125,21 @@ let characterBuilds = {
     "Up_A": (color,user)=>{return dillionUpA_DestroyTurrets(color, user)},
 
     "Ultimate": (color, user)=>{return spawnBlackhole(color, user)},
+  },
+  "Cooper": {
+    "Neutral_B": (color,user)=>{},
+    "Side_B": (color,user)=>{return CooperSideB_LongPunch(color, user)},
+    "Up_B": (color,user)=>{},
+    "Down_B": (summonerColor, user)=>{},
+
+    "Neutral_A": (color,user)=>{},
+    "Side_A": (color,user)=>{},
+    "LeftSide_A_air": (color,user)=>{},
+    "RightSide_A_air": (color,user)=>{},
+    "Down_A": (color,user)=>{},
+    "Up_A": (color,user)=>{},
+
+    "Ultimate": (color, user)=>{},
   },
   "Jackson": {
     "Neutral_B": (color,user)=>{},
@@ -263,10 +278,10 @@ sprites.push(background)
 
 const player = new Fighter({
 	playerIndex: 0,
-  characterName: "Dillion",
+  characterName: "Cooper",
   color: 'red',
   facingRight: true,
-  attacks: characterBuilds["Dillion"],
+  attacks: characterBuilds["Cooper"],
   
   position: {
     x: 0 * canvasScale,
@@ -469,7 +484,7 @@ function animate() {
     }
     
     if(entity.life != null){
-    	entity.life -= 1
+    	entity.life -= deltaTimeMS
       if(entity.life < 0){
       	damageSprites.splice(i, 1)
       }

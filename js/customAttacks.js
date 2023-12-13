@@ -31,6 +31,35 @@ function binaryRain(count, dmg, summonerColor){
   }
 }
 
+// Cooper Attacks
+function CooperSideB_LongPunch(summonerColor, user){
+  let spriteName = user.facingRight ? "right" : "left"
+  
+  let e = new Sprite({
+    position: {
+      "x": user.position.x,
+      "y": user.position.y,
+    },
+    imageSrc: './sprites/cooper_stock_photos/hand_grab_' +spriteName+ '.png',
+    scale: canvasScale * 0.5,
+    framesMax: 1,
+  })
+  damageSprites.push({
+    entity: e,
+    dmg: 4,
+    color: summonerColor,
+    vel: {x:10 * (user.facingRight ? 1 : -1), y:0},
+    uses: 1,
+    
+    //pullUser: true,
+    life: 9000,
+ })
+
+ return 2000
+}
+
+
+
 // Dillion Attacks
 function spawnTurret(summonerColor, user){
 	let usetTurretCount = 0

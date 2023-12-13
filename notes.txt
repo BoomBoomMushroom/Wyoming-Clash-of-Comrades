@@ -25,6 +25,8 @@ Dillion Attacks and Notes
 
 
 
+
+
 FROM JACKSON:
 
 Jackson grappler
@@ -62,3 +64,39 @@ Up special
 Cooper turns into plane, backround image 911
 Side special sticky hand grapple to enemy or wall
 Ult gigachad head massive buff to speed and attack
+
+
+
+Cooper Attacks and Notes
+* A Attacks
+    - Neutral   ~ Everyone becomes Miles Morales suprised for X seconds
+    - Side      ~ Stick hand grapple to enemy or wall
+    - Side Air  ~   Same as grapple - ground side
+    - Down      ~ Pull grenade pin and explode everyone
+    - Up        ~ Turn into plane, and blow up one player
+* B Attacks
+    - Neutral   ~ Pull someone towards you (facing direction) (Side B in Dillion)
+    - Side      ~ Long punch in direction (comically long hand)
+    - Up        ~ Stock Photo hand Punch Up Quickly
+    - Down      ~ Stock Photo hand Punch Down Quickly
+* Ultimate
+    ~ Giga Chad for X seconds w/ buff attack and speed
+
+
+
+
+
+EmptyPlayer Attacks and Notes
+* A Attacks
+    - Neutral   ~
+    - Side      ~
+    - Side Air  ~
+    - Down      ~
+    - Up        ~
+* B Attacks
+    - Neutral   ~
+    - Side      ~
+    - Up        ~
+    - Down      ~
+* Ultimate
+    ~

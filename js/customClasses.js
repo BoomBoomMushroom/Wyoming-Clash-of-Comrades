@@ -227,7 +227,7 @@ class Fighter extends Sprite {
       "Ultimate": 0,
     }
     
-    this.ultimateCharge = false
+    this.ultimateCharge = 0
     this.lastMove = ""    
     /*
       last moves can be:
