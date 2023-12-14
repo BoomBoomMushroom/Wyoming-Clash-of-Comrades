@@ -32,9 +32,35 @@ function binaryRain(count, dmg, summonerColor){
 }
 
 // Cooper Attacks
+function CooperDownA_Grenade(color, user){
+  let grenadeSprite = new Sprite({
+    position: user.position,
+    imageSrc: './sprites/cooper_stock_photos/grenade_pull_6frames.png',
+    scale: canvasScale * 1,
+    framesMax: 6,
+    offset: {
+      "x": 0,
+      "y": 0
+    }
+  })
+  sprites.push(grenadeSprite)
+
+  let clearingId = setInterval(()=>{
+    if(grenadeSprite.framesCurrent != grenadeSprite.framesMax-1) return
+    sprites.splice( sprites.indexOf(grenadeSprite), 1)
+    explosionCreate(color, {
+      "x": user.position.x,
+      "y": user.position.y - user.height/2,
+    })
+    clearInterval(clearingId)
+  }, 1)
+
+  return 6000
+}
+
 function CooperSideB_LongPunch(summonerColor, user){
   let spriteName = user.facingRight ? "right" : "left"
-  
+
   let e = new Sprite({
     position: {
       "x": user.position.x,
@@ -53,21 +79,22 @@ function CooperSideB_LongPunch(summonerColor, user){
     
     //pullUser: true,
     life: 9000,
- })
+  })
 
- return 2000
+  return 2000
 }
 
 
 
 // Dillion Attacks
 function spawnTurret(summonerColor, user){
-	let usetTurretCount = 0
+	let maxTurrets = 1
+  let usetTurretCount = 0
   for(var i=0;i<turrets.length;i++){
   	let turret = turrets[i]
     if(turret.summoner == user){ usetTurretCount += 1 }
   }
-  if(usetTurretCount >= 3){ return 0 }
+  if(usetTurretCount >= maxTurrets){ return 0 }
 
 	let e = new Sprite({
     position: {
@@ -146,6 +173,7 @@ function dillionUpA_DestroyTurrets(color, user){
   	x: user.position.x - (user.width/2),
     y: user.position.y - (user.height/2)
   })
+  user.takeHit(randomInt(1, 10), user.position)
   
   for(var i=0;i<turrets.length;i++){
   	if(turrets[i] == null){ continue }
@@ -181,7 +209,7 @@ function spawnBlackhole(summonerColor, user){
     dmg: 3,
     scaleTo: 5,
     scaleFrom: 0,
-    life: 250, // 5 seconds?
+    life: 5000, // 5 seconds?
     uses: Infinity,
   })
 }
@@ -199,11 +227,15 @@ function explosionCreate(summonerColor, position){
     scale: canvasScale * 7,
     framesMax: 7,
   })
+
+  e.width = 135
+  e.height = 135
+
   damageSprites.push({
     entity: e,
     dmg: randomInt(20, 45),
     color: summonerColor,
     uses: 1,
-    life: 30,
+    life: 500,
  })
 }

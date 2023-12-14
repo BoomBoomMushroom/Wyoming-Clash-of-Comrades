@@ -206,6 +206,9 @@ class Fighter extends Sprite {
     this.onGround = false
     this.stunFrames = 0
     
+    this.critChance = 0.01 // <-- 1% chance
+    this.attackDamage = 1
+
     this.facingRight = facingRight
     this.damage = 0
     this.immunityFrames = 0
@@ -282,12 +285,11 @@ class Fighter extends Sprite {
       this.immunityFrames -= 1
       this.stunFrames -= 1
       
-      this.attackRunTime -= deltaTimeMS
+      this.attackRunTime -= deltaTimeMS / 1000
       this.isAttacking = this.attackRunTime > 0
 
       let attkCooldownKeys = Object.keys(this.cooldowns)
       for(let i=0;i<attkCooldownKeys.length;i++){
-        //this.cooldowns[attkCooldownKeys[i]] -= 1
         this.cooldowns[attkCooldownKeys[i]] -= deltaTimeMS
         if(isNaN(this.cooldowns[attkCooldownKeys[i]])) this.cooldowns[attkCooldownKeys[i]] = 0
       }
@@ -305,7 +307,7 @@ class Fighter extends Sprite {
       
       if(this.position.y < 0){ this.velocity.y *= -1 }
       if(this.position.x < 0){
-        this.velocity.x = Math.abs(this.velocity.x)
+        this.velocity.x = 5
         if(this.velocity.x <= 0) this.velocity.x = 10
       }
 
@@ -415,12 +417,19 @@ class Fighter extends Sprite {
       }
     }
     
-    c.fillStyle = this.color;
-    c.font = "16px PressStart2P";
+    //c.fillStyle = this.color;
+    //c.font = "16px PressStart2P";
     
     let percent = this.damage/300
     let move = (percent * 14) + 7
-    c.fillText(this.damage+"%",this.position.x+(this.width/4)-move,this.position.y-15);
+    //c.fillText(this.damage+"%",this.position.x+(this.width/4)-move,this.position.y-15);
+    this.drawText(this.color, "16px PressStart2P", this.damage+"%", {"x": this.position.x+(this.width/4)-move, "y":this.position.y-15})
+  }
+
+  drawText(color, font, text, position){
+    c.fillStyle = color
+    c.font = font
+    c.fillText(text, position.x, position.y)
   }
 
   drawHitbox(hitboxData, color) {
@@ -526,17 +535,14 @@ class Fighter extends Sprite {
       let collision = this.hitBoxCollision(attackingHitbox, entityHitbox)
       if(collision == false) continue
 
-      entities[i].takeHit(1, this.position)
+      this.ultimateCharge += this.attackDamage
+      document.getElementById("consoleEmpty").innerText = this.ultimateCharge
+      entities[i].takeHit(this.attackDamage, this.position)
       console.log(collision, "Collision!")
     }
+    this.isAttacking = false
 
     //console.log(attackDirection)
-  }
-
-  attack() {
-    if(this.isAttacking){return}
-    
-    this.isAttacking = true
   }
   
   jump(){
@@ -584,8 +590,6 @@ class Fighter extends Sprite {
 
       clearInterval(clearingId)
     }, 1)
-
-    console.log("I am dead")
   }
 
   killPlayer(reason){
@@ -596,6 +600,8 @@ class Fighter extends Sprite {
 
   takeHit(dmg, src) {
     if(this.immunityFrames > 0) return
+    if(Math.random() <= this.critChance) dmg += randomInt(1, 10)
+    
     this.damage += dmg
     this.immunityFrames = 5
     
@@ -711,7 +717,7 @@ class Fighter extends Sprite {
 
     if(didAttack == false) return
     this.isAttacking = true
-    this.attackRunTime = 100
+    this.attackRunTime = 0.05
   }
 
   determineAndUpdateSprite(){

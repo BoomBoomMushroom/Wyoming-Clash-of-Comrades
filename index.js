@@ -113,7 +113,7 @@ let characterBuilds = {
   },
   "Dillion": {
     "Neutral_B": (color,user)=>{},
-    "Side_B": (color,user)=>{dillionSideB_GrappleDirection(color,user)},
+    "Side_B": (color,user)=>{return dillionSideB_GrappleDirection(color,user)},
     "Up_B": (color,user)=>{return dillionUpB_RecoverUp(color, user)},
     "Down_B": (summonerColor, user)=>{return spawnTurret(summonerColor, user)},
 
@@ -127,7 +127,7 @@ let characterBuilds = {
     "Ultimate": (color, user)=>{return spawnBlackhole(color, user)},
   },
   "Cooper": {
-    "Neutral_B": (color,user)=>{},
+    "Neutral_B": (color,user)=>{return dillionSideB_GrappleDirection(color,user)},
     "Side_B": (color,user)=>{return CooperSideB_LongPunch(color, user)},
     "Up_B": (color,user)=>{},
     "Down_B": (summonerColor, user)=>{},
@@ -136,7 +136,7 @@ let characterBuilds = {
     "Side_A": (color,user)=>{},
     "LeftSide_A_air": (color,user)=>{},
     "RightSide_A_air": (color,user)=>{},
-    "Down_A": (color,user)=>{},
+    "Down_A": (color,user)=>{return CooperDownA_Grenade(color, user)},
     "Up_A": (color,user)=>{},
 
     "Ultimate": (color, user)=>{},
@@ -364,6 +364,7 @@ function animate() {
   
   performanceNow = performance.now()
   deltaTimeMS = performanceNow-lastFrameNow
+  dtMultiplier = deltaTimeMS / 1000
   lastFrameNow = performanceNow + 0
   FPS = 1000 / deltaTimeMS
   fpsCounter.innerText = Math.round(FPS)
@@ -376,8 +377,8 @@ function animate() {
   for(var i=0;i<turrets.length;i++){
   	let turret = turrets[i]
     if(turret.cooldown == null){ turret.cooldown = 0 }
-    else{ turret.cooldown -= 1 }
-    turret.life -= 1
+    else{ turret.cooldown -= 1 * dtMultiplier }
+    turret.life -= 1 * dtMultiplier
     if(turret.life <= 0){ turrets.splice(i, 1) }
     
     if(turret.entity.position.y+(turret.entity.height/3)+7 < floor){
@@ -426,7 +427,7 @@ function animate() {
     tEntity.image.src = turret.sprites[kIndex]    
     tEntity.draw()
     
-    if(turret.cooldown == 0){
+    if(turret.cooldown < 0){
       let newProj = new Sprite({
         position: {
           x: tEntity.position.x + tEntity.width/4,
@@ -436,6 +437,9 @@ function animate() {
         scale: canvasScale * 10,
         framesMax: 1,
       })
+      newProj.width = 16
+      newProj.height = 8
+
       damageSprites.push({
         entity: newProj,
         color: turret.color,
@@ -444,7 +448,7 @@ function animate() {
         uses: -1,
       })
       
-      turret.cooldown = 100
+      turret.cooldown = 1
     }
   }
   
@@ -461,7 +465,8 @@ function animate() {
     
     for(var j=0;j<damageSprites.length;j++){
     	let atkBox = {attackBox: damageSprites[j].entity}
-      let collide = rectangularCollision({rectangle1:atkBox, rectangle2:entity})
+      //let collide = rectangularCollision({rectangle1:atkBox, rectangle2:entity})
+      let collide = entity.hitBoxCollision(damageSprites[j].entity, entity)
       if(collide && entity.color != damageSprites[j].color){
       	damageSprites[j].uses -= 1
         entity.takeHit(damageSprites[j].dmg, damageSprites[j].entity.position)
@@ -490,6 +495,18 @@ function animate() {
       }
     }
     entity.entity.update()
+
+    /*
+    // draw hit box
+    c.beginPath();
+    c.moveTo(entity.entity.position.x, entity.entity.position.y);
+    c.lineTo(entity.entity.position.x + entity.entity.width, entity.entity.position.y);
+    c.lineTo(entity.entity.position.x + entity.entity.width, entity.entity.position.y+entity.entity.height);
+    c.lineTo(entity.entity.position.x, entity.entity.position.y+entity.entity.height);
+    c.lineTo(entity.entity.position.x, entity.entity.position.y);
+    c.stroke();
+    */
+
     if(entity.vel != null){
       entity.entity.position.x += entity.vel.x
       entity.entity.position.y += entity.vel.y
