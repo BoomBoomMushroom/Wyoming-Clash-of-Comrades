@@ -750,9 +750,6 @@ class Fighter extends Sprite {
     }
 
     this.setSprite(this.sprites[this.lastMove][facing], this.sprites[this.lastMove][maxFramesFacing])
-
-    // display the proper sprite
-    // find this out, either attacking, jump, moving, idle
   }
 
   setSprite(spriteImage, maxFrames){

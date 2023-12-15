@@ -42,14 +42,14 @@ Ryan Attacks and Notes
 * A Attacks
     - Neutral   ~ Spout factual nonsence firing a projectile that deals decent damage
     - Side      ~ Pulls out big ol' book that smack enemies in front of him
-    - Side Air  ~ Dashes forward trying yo stab someone with a chess queen (can spike)
-    - Down      ~ Does the funny little tap dance, minor damage and temp. stuns nearby enemies
+    - Side Air  > Dashes forward trying to stab someone with a chess queen (can spike)
+    - Down      > (SPRITE BASED) Does the funny little tap dance, minor damage and temp. stuns nearby enemies
     - Up        ~ Smacks the words "no" and "life" together above himself good damge and blasts enemy away
 * B Attacks
-    - Neutral   ~ Prays to god, recieves 1 of 5 buffs (damahe, defense, speed, jump, or 1% chance to one-tap enemy)
-    - Side      ~ Sings incredibly loudly and fires a music note towards enemies (damage based on charge)
+    - Neutral   ~ Prays to god, recieves 1 of 5 buffs (damage, defense, speed, jump, or 1% chance to one-tap enemy)
+    - Side      > Sings incredibly loudly and fires a music note towards enemies (damage based on charge)
     - Up        ~ Pulls out winged shoes and given a moment to target (sepherof up b in smash bros ult.)
-    - Down      ~ Smmons a skeleton that can have a gun, a sword, or a shield that attacks enemies
+    - Down      ~ Summons a skeleton that can have a gun, a sword, or a shield that attacks enemies
 * Ultimate
     ~ God and Goku appear in the background and combine the power to fire a ray of light where targeted (HUGE DAMAGE)
 

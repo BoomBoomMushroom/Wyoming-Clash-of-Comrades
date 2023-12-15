@@ -141,17 +141,17 @@ let characterBuilds = {
 
     "Ultimate": (color, user)=>{},
   },
-  "Jackson": {
+  "Ryan": {
     "Neutral_B": (color,user)=>{},
-    "Side_B": (color,user)=>{},
+    "Side_B": (color,user)=>{return RyanChargedSing_SideB(color,user)},
     "Up_B": (color,user)=>{},
     "Down_B": (summonerColor, user)=>{},
 
     "Neutral_A": (color,user)=>{},
     "Side_A": (color,user)=>{},
-    "LeftSide_A_air": (color,user)=>{},
-    "RightSide_A_air": (color,user)=>{},
-    "Down_A": (color,user)=>{},
+    "LeftSide_A_air": (color,user)=>{return RyanQueenDash_SideAirA(color, user)},
+    "RightSide_A_air": (color,user)=>{return RyanQueenDash_SideAirA(color, user)},
+    "Down_A": (color,user)=>{return RyanTapDance_DownA(color,user)},
     "Up_A": (color,user)=>{},
 
     "Ultimate": (color, user)=>{},
@@ -278,10 +278,10 @@ sprites.push(background)
 
 const player = new Fighter({
 	playerIndex: 0,
-  characterName: "Cooper",
+  characterName: "Ryan",
   color: 'red',
   facingRight: true,
-  attacks: characterBuilds["Cooper"],
+  attacks: characterBuilds["Ryan"],
   
   position: {
     x: 0 * canvasScale,

@@ -213,6 +213,107 @@ function CooperSideB_LongPunch(summonerColor, user){
   return 2000
 }
 
+// Ryan Attacks
+
+function RyanQueenDash_SideAirA(color, user){
+  user.velocity.x = 15 * (user.facingRight ? 1 : -1)
+
+  let clearingId = setInterval(()=>{
+    clearInterval(clearingId)
+    let eligable = []
+    for(var i=0;i<entities.length;i++){
+      if(entities[i].dead) continue
+      if(entities[i].color != color) eligable.push(i)
+    }
+    if(eligable.length==0) return
+    let targetId = eligable[randomInt(0, eligable.length-1)]
+    let rise = (entities[targetId].position.y)-(user.position.y)
+    let run = (entities[targetId].position.x)-(user.position.x)
+    let speed = 0.025
+
+    let e = new Sprite({
+      position: {
+        x: user.position.x,
+        y: user.position.y,
+      },
+      imageSrc: './sprites/ryan_images/chess_queen.png',
+      scale: canvasScale * .25,
+      framesMax: 1,
+    })
+    damageSprites.push({
+      entity: e,
+      color: color,
+      vel: {x:run*speed,y:rise*speed},
+      
+      dmg: randomInt(5, 15),
+      life: 10000, // 5 seconds?
+      uses: 1,
+    })
+  }, randomInt(0, 300))
+
+  return 8000
+}
+
+function RyanTapDance_DownA(color, user){
+  for(var i=0;i<entities.length;i++){
+    if(entities[i].dead) continue
+    if(entities[i].color == color) continue
+
+    // no idea how long this is - hope it works!
+    entities[i].stunFrames = 100
+  }
+
+  return 4000
+}
+
+
+function RyanChargedSing_SideB(color, user){
+  let keybinds = userKeys[user.playerIndex]
+  let keyNeed = user.facingRight ? keybinds.Right : keybinds.Left
+  
+  let holdTime = 0
+  let maxTime = 2000
+
+  let skipTimeMult = 30
+
+  let clearId = setInterval(()=>{
+      user.velocity.x = 0
+  },1)
+
+  let func = function(){
+    if((keys[keyNeed]!=true && holdTime >= 200) || holdTime>=3000){
+      return clearInterval(clearId)
+    }
+    
+    holdTime += deltaTimeMS * skipTimeMult
+    let t = holdTime>=maxTime ? maxTime : holdTime
+    let damage = Math.floor( parabolaGet(1,2,2, t/1000) )
+
+    let e = new Sprite({
+      position: {"x": user.position.x, "y": user.position.y},
+      imageSrc: './sprites/ryan_images/note'+randomInt(1,7)+'-sheet.png',
+      scale: canvasScale * 0.1,
+      framesMax: 13,
+    })
+  
+    e.width = 25
+    e.height = 55
+  
+    damageSprites.push({
+      entity: e,
+      vel: {"x": user.facingRight ? 10 : -10, "y": 0},
+      dmg: damage,
+      color: color,
+      uses: 1,
+      life: 9000,
+    })
+    
+    setTimeout(func, deltaTimeMS*skipTimeMult)
+  }
+  setTimeout(func, deltaTimeMS*skipTimeMult)
+  
+  return 9000
+}
 
 
 // Dillion Attacks
@@ -376,4 +477,8 @@ function setEntityFrozenFrameAndImageSrc(frozenFrameCount, imageSrc, imageMaxFra
   entity.frozenSprite = frozenFrameCount
   entity.image = tempImage
   entity.framesMax = imageMaxFrames
+}
+
+function parabolaGet(a,b,c, x){
+  return (a*(x*x)) + (b*x) + c
 }
