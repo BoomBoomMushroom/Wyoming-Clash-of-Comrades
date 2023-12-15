@@ -55,7 +55,136 @@ function CooperDownA_Grenade(color, user){
     clearInterval(clearingId)
   }, 1)
 
-  return 6000
+  return 20000
+}
+
+function CooperMilesMorales_NeutralA(color, user){
+  for(var i=0; i<entities.length; i++){
+    setEntityFrozenFrameAndImageSrc(
+      1000 * 3,
+      "./sprites/cooper_stock_photos/miles_morales_suprised.png",
+      1,
+      entities[i]
+    )
+    // 3 Seconds
+  }
+}
+
+function CooperStickyHand_SideA(color, user){
+  let spriteName = user.facingRight ? "right" : "left"
+
+  let e = new Sprite({
+    position: {
+      "x": user.position.x,
+      "y": user.position.y,
+    },
+    imageSrc: './sprites/cooper_stock_photos/sticky_hand_' +spriteName+ '.png',
+    scale: canvasScale * 0.5,
+    framesMax: 1,
+  })
+  e.width = 150
+  e.height = 40
+  let dmgSprite = {
+    entity: e,
+    dmg: 4,
+    color: color,
+    vel: {x:10 * (user.facingRight ? 1 : -1), y:0},
+    uses: 1,
+    
+    //pullUser: true,
+    life: 9000,
+  }
+  damageSprites.push(dmgSprite)
+
+  let prevPosition = null
+  let startUses = dmgSprite.uses+0
+  let removeId = setInterval(()=>{
+    prevPosition = dmgSprite.entity.position
+    let outOfBounds = false
+    if(prevPosition.x < 0){outOfBounds=true}
+    if(prevPosition.x+e.width > canvas.width){outOfBounds=true}
+    if(dmgSprite.uses == startUses && outOfBounds==false) return
+    dmgSprite.life = -1
+    clearInterval(removeId)
+    let toTheRight = prevPosition.x-user.position.x > 0 ? true : false
+    user.velocity.x = 15 * (toTheRight ? 1 : -1)
+  }, 1);
+
+  return 4000
+}
+
+function CooperPlane_UpA(color, user){
+  setEntityFrozenFrameAndImageSrc(
+    Infinity,
+    "./sprites/cooper_stock_photos/plane_"+(user.facingRight ? "right" : "left")+".png",
+    1,
+    user
+  )
+  user.doGravity = false
+
+  // Create bullet to track time
+  let newProj = new Sprite({
+    position: {
+      x: -1000,
+      y: -1000,
+    },
+    imageSrc: "./sprites/attacks/bullet.png",
+    scale: canvasScale * 1,
+    framesMax: 1,
+  })
+  let dmgSprite = {
+    entity: newProj,
+    color: "",
+    vel: {"x":0,"y":0},
+    dmg: 0,
+    uses: -1,
+    life: 5000
+  }
+  damageSprites.push(dmgSprite)
+
+  let removeId = setInterval(()=>{
+    let plrHitbox = user.generateHitBoxes(1)[0]
+    for(let i=0;i<entities.length;i++){
+      if(entities[i].color == user.color) continue
+      if(user.hitBoxCollision(plrHitbox, entities[i].generateHitBoxes(1)[0])){
+        entities[i].takeHit(randomInt(10, 50), user.position)
+        user.damage += randomInt(2, 30)
+        dmgSprite.life = -10
+      }
+    }
+
+    user.image.src = "./sprites/cooper_stock_photos/plane_"+(user.facingRight ? "right" : "left")+".png"
+    if(dmgSprite.life>0) return
+    clearInterval(removeId)
+    user.frozenSprite = 0
+    user.doGravity = true
+  },1)
+
+  return 20_000
+}
+
+function CooperUpAndDown_PunchStockPhotoHand(summonerColor, user, dir){
+  let e = new Sprite({
+    position: {
+      "x": user.position.x,
+      "y": user.position.y,
+    },
+    imageSrc: './sprites/cooper_stock_photos/hand_grab_' +dir+ '.png',
+    scale: canvasScale * 0.5,
+    framesMax: 1,
+  })
+  damageSprites.push({
+    entity: e,
+    dmg: 4,
+    color: summonerColor,
+    vel: {x:0, y:10 * (dir=="down" ? 1 : -1)},
+    uses: 1,
+    
+    //pullUser: true,
+    life: 9000,
+  })
+
+  return 2000
 }
 
 function CooperSideB_LongPunch(summonerColor, user){
@@ -238,4 +367,13 @@ function explosionCreate(summonerColor, position){
     uses: 1,
     life: 500,
  })
+}
+
+function setEntityFrozenFrameAndImageSrc(frozenFrameCount, imageSrc, imageMaxFrames, entity){
+  let tempImage = new Image()
+  tempImage.src = imageSrc
+
+  entity.frozenSprite = frozenFrameCount
+  entity.image = tempImage
+  entity.framesMax = imageMaxFrames
 }

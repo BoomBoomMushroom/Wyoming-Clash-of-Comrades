@@ -21,18 +21,19 @@ Dillion Attacks and Notes
     > Spawn Black Hole on current position
 
 
+// I NEED SPRITES FOR COOPER'S CHARACTER
 Cooper Attacks and Notes
 * A Attacks
-    - Neutral   ~ Everyone becomes Miles Morales suprised for X seconds
-    - Side      ~ Stick hand grapple to enemy or wall
-    - Side Air  ~   Same as grapple - ground side
-    - Down      ~ Pull grenade pin and explode everyone
-    - Up        ~ Turn into plane, and blow up one player
+    - Neutral   > Everyone becomes Miles Morales suprised for X seconds
+    - Side      > Stick hand grapple to enemy or wall
+    - Side Air  >   Same as grapple - ground side
+    - Down      > Pull grenade pin and explode everyone
+    - Up        > Turn into plane, and blow up one player
 * B Attacks
-    - Neutral   ~ Pull someone towards you (facing direction) (Side B in Dillion)
-    - Side      ~ Long punch in direction (comically long hand)
-    - Up        ~ Stock Photo hand Punch Up Quickly
-    - Down      ~ Stock Photo hand Punch Down Quickly
+    - Neutral   > Pull someone towards you (facing direction) (Side B in Dillion)
+    - Side      > Long punch in direction (comically long hand)
+    - Up        > Stock Photo hand Punch Up Quickly
+    - Down      > Stock Photo hand Punch Down Quickly
 * Ultimate
     ~ Giga Chad for X seconds w/ buff attack and speed
 

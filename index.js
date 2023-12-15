@@ -129,15 +129,15 @@ let characterBuilds = {
   "Cooper": {
     "Neutral_B": (color,user)=>{return dillionSideB_GrappleDirection(color,user)},
     "Side_B": (color,user)=>{return CooperSideB_LongPunch(color, user)},
-    "Up_B": (color,user)=>{},
-    "Down_B": (summonerColor, user)=>{},
+    "Up_B": (color,user)=>{return CooperUpAndDown_PunchStockPhotoHand(color, user, "up")},
+    "Down_B": (summonerColor, user)=>{return CooperUpAndDown_PunchStockPhotoHand(summonerColor, user, "down")},
 
-    "Neutral_A": (color,user)=>{},
-    "Side_A": (color,user)=>{},
-    "LeftSide_A_air": (color,user)=>{},
-    "RightSide_A_air": (color,user)=>{},
+    "Neutral_A": (color,user)=>{return CooperMilesMorales_NeutralA(color, user)},
+    "Side_A": (color,user)=>{return CooperStickyHand_SideA(color,user)},
+    "LeftSide_A_air": (color,user)=>{return CooperStickyHand_SideA(color,user)},
+    "RightSide_A_air": (color,user)=>{return CooperStickyHand_SideA(color,user)},
     "Down_A": (color,user)=>{return CooperDownA_Grenade(color, user)},
-    "Up_A": (color,user)=>{},
+    "Up_A": (color,user)=>{return CooperPlane_UpA(color, user)},
 
     "Ultimate": (color, user)=>{},
   },
@@ -357,14 +357,14 @@ const keys = {}
 
 var lastFrameNow = 0
 var fpsCounter = document.getElementById("fpsCounter")
-
+var deltaTimeMS = 0
 
 function animate() {
   window.requestAnimationFrame(animate)
   
-  performanceNow = performance.now()
+  let performanceNow = performance.now()
   deltaTimeMS = performanceNow-lastFrameNow
-  dtMultiplier = deltaTimeMS / 1000
+  let dtMultiplier = deltaTimeMS / 1000
   lastFrameNow = performanceNow + 0
   FPS = 1000 / deltaTimeMS
   fpsCounter.innerText = Math.round(FPS)

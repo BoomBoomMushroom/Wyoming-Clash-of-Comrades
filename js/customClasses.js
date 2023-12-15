@@ -205,7 +205,10 @@ class Fighter extends Sprite {
     this.dead = false
     this.onGround = false
     this.stunFrames = 0
+    this.frozenSprite = 0
     
+    this.doGravity = true
+
     this.critChance = 0.01 // <-- 1% chance
     this.attackDamage = 1
 
@@ -284,6 +287,7 @@ class Fighter extends Sprite {
       this.animateFrames()
       this.immunityFrames -= 1
       this.stunFrames -= 1
+      this.frozenSprite -= deltaTimeMS
       
       this.attackRunTime -= deltaTimeMS / 1000
       this.isAttacking = this.attackRunTime > 0
@@ -322,7 +326,7 @@ class Fighter extends Sprite {
       this.velocity.y = 0
       this.position.y = floor - (this.height)
       this.onGround = true
-    } else{
+    } else if(this.doGravity){
       this.velocity.y += gravity
       // let's only set this to false when we do jump
       //this.onGround = false
@@ -378,16 +382,21 @@ class Fighter extends Sprite {
       this.handleAttack(entities)
     }
 
-    this.determineAndUpdateSprite()
+    if(this.frozenSprite < 0) this.determineAndUpdateSprite()
     
   }
 
   handleVelocity(){
     let drag = .5
     let velX = this.velocity.x
+    let velY = this.velocity.y
     if(velX != 0){
       this.velocity.x += velX > 0 ? -drag : drag
     }
+    if(velY != 0 && this.doGravity==false){
+      this.velocity.y += velY > 0 ? -drag : drag
+    }
+
     let round = 10
     this.velocity.x = Math.floor(this.velocity.x*round)/round
     this.velocity.y = Math.floor(this.velocity.y*round)/round
@@ -630,20 +639,26 @@ class Fighter extends Sprite {
       hasMoved = true
       this.facingRight = true
     }
+
+    if(keys[keybinds.Jump]){
+      if(this.doGravity) this.jump()
+      else{ this.velocity.y -= speed/3 }
+    }
+    if(keys[keybinds.Shield] && this.doGravity==false){
+      this.velocity.y += speed/3
+    }
   }
 
   setCooldown(attack, attackData){
     if(attackData == null) attackData = 400
+    console.log(attackData, attack)
     
     this.cooldowns[attack] = attackData
   }
 
   handleInputs(keybinds){
     let didAttack = false
-
-    if(keys[keybinds.Jump]){
-      this.jump()
-    }
+    
     if (keys[keybinds.Ultimate] && this.ultimateCharge>=100) {
       this.ultimateCharge = 0
       this.attacks["Ultimate"](this.color, this)
